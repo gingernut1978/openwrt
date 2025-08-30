@@ -41,8 +41,7 @@ define KernelPackage/mt76-default
   DEPENDS:= \
 	+kmod-mac80211 \
 	+@DRIVER_11AC_SUPPORT \
-	+@KERNEL_PAGE_POOL \
-	@!TARGET_uml
+	+@KERNEL_PAGE_POOL
 endef
 
 define KernelPackage/mt76
@@ -413,6 +412,8 @@ ifdef CONFIG_PACKAGE_CFG80211_TESTMODE
   PKG_MAKE_FLAGS += CONFIG_NL80211_TESTMODE=y
 endif
 
+NOSTDINC_FLAGS += -DCONFIG_MAC80211_DEBUGFS
+
 ifdef CONFIG_PACKAGE_kmod-mt76-usb
   PKG_MAKE_FLAGS += CONFIG_MT76_USB=m
 endif
@@ -597,9 +598,9 @@ endef
 define KernelPackage/mt7915-firmware/install
 	$(INSTALL_DIR) $(1)/lib/firmware/mediatek
 	cp \
-		$(PKG_BUILD_DIR)/firmware/mt7915_wa.bin \
-		$(PKG_BUILD_DIR)/firmware/mt7915_wm.bin \
-		$(PKG_BUILD_DIR)/firmware/mt7915_rom_patch.bin \
+		./files/firmware/mt7915_wa.bin \
+		./files/firmware/mt7915_wm.bin \
+		./files/firmware/mt7915_rom_patch.bin \
 		$(1)/lib/firmware/mediatek
 endef
 
@@ -615,20 +616,20 @@ endef
 define KernelPackage/mt7981-firmware/install
 	$(INSTALL_DIR) $(1)/lib/firmware/mediatek
 	cp \
-		$(PKG_BUILD_DIR)/firmware/mt7981_wa.bin \
-		$(PKG_BUILD_DIR)/firmware/mt7981_wm.bin \
-		$(PKG_BUILD_DIR)/firmware/mt7981_rom_patch.bin \
+		./files/firmware/mt7981_wa.bin \
+		./files/firmware/mt7981_wm.bin \
+		./files/firmware/mt7981_rom_patch.bin \
 		$(1)/lib/firmware/mediatek
 endef
 
 define KernelPackage/mt7986-firmware/install
 	$(INSTALL_DIR) $(1)/lib/firmware/mediatek
 	cp \
-		$(PKG_BUILD_DIR)/firmware/mt7986_wa.bin \
-		$(PKG_BUILD_DIR)/firmware/mt7986_wm_mt7975.bin \
-		$(PKG_BUILD_DIR)/firmware/mt7986_wm.bin \
-		$(PKG_BUILD_DIR)/firmware/mt7986_rom_patch_mt7975.bin \
-		$(PKG_BUILD_DIR)/firmware/mt7986_rom_patch.bin \
+		./files/firmware/mt7986_wa.bin \
+		./files/firmware/mt7986_wm_mt7975.bin \
+		./files/firmware/mt7986_wm.bin \
+		./files/firmware/mt7986_rom_patch_mt7975.bin \
+		./files/firmware/mt7986_rom_patch.bin \
 		$(1)/lib/firmware/mediatek
 endef
 
@@ -712,6 +713,7 @@ endef
 
 define Package/mt76-test/install
 	mkdir -p $(1)/usr/sbin
+	$(INSTALL_BIN) ./files/mt76-reg $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tools/mt76-test $(1)/usr/sbin
 endef
 
