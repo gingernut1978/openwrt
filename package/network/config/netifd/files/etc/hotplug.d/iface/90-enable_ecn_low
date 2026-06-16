@@ -1,0 +1,12 @@
+#!/bin/sh
+
+[ "$ACTION" = "ifup" ] || exit 0
+[ "$INTERFACE" = "wan" ] || exit 0
+
+sleep 2
+
+DEV="$(ubus call network.interface.wan status 2>/dev/null | jsonfilter -e '@.l3_device')"
+[ -n "$DEV" ] || exit 0
+
+GW=$(ip route show default dev "$DEV" | awk '{print $3}')
+[ -n "$GW" ] && ip route replace default via "$GW" dev "$DEV" features ecn_low
