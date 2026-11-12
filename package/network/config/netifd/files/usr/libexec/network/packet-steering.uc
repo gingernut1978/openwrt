@@ -347,8 +347,11 @@ function assign_dev_cpu(dev) {
 
 	if (length(dev.tasks) > 0) {
 		let cpu = dev.napi_cpu = get_next_cpu(napi_weight);
-		for (let task in dev.tasks)
-			set_task_cpu(task, cpu);
+		for (let i = 0; i < length(dev.tasks); i++) {
+			if (i > 0)
+				cpu = get_next_cpu(napi_weight, cpu);
+			set_task_cpu(dev.tasks[i], cpu);
+		}
 	}
 
 	if (length(dev.netdev) > 0) {
