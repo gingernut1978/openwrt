@@ -139,6 +139,18 @@ function device_cell_density_append(config) {
 	}
 }
 
+function he_bss_color_random() {
+	let f = fs.open("/dev/urandom", "r");
+
+	if (!f)
+		return -1;
+
+	let color = (ord(f.read(1)) % 63) + 1;
+	f.close();
+
+	return color;
+}
+
 function device_htmode_append(config) {
 	config.channel_offset = config.band == '6g' ? 1 : 0;
 
