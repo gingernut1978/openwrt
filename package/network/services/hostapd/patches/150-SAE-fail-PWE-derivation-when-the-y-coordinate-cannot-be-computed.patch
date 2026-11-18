@@ -25,7 +25,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 
 --- a/src/common/common_module_tests.c
 +++ b/src/common/common_module_tests.c
-@@ -517,6 +517,49 @@ fail:
+@@ -518,6 +518,49 @@ fail:
  }
  
  
@@ -75,14 +75,14 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  static int sae_pk_tests(void)
  {
  #ifdef CONFIG_SAE_PK
-@@ -790,6 +833,7 @@ int common_module_tests(void)
+@@ -957,6 +1000,7 @@ int common_module_tests(void)
  	if (ieee802_11_parse_tests() < 0 ||
  	    gas_tests() < 0 ||
  	    sae_tests() < 0 ||
 +	    sae_pwe_failure_tests() < 0 ||
  	    sae_pk_tests() < 0 ||
  	    pasn_tests() < 0 ||
- 	    rsn_ie_parse_tests() < 0)
+ 	    dpp_tests() < 0 ||
 --- a/src/common/sae.c
 +++ b/src/common/sae.c
 @@ -425,6 +425,7 @@ static int sae_derive_pwe_ecc(struct sae

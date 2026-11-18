@@ -71,14 +71,17 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 
 --- a/src/ap/ieee802_11.c
 +++ b/src/ap/ieee802_11.c
-@@ -6165,39 +6165,50 @@ static int check_assoc_ies(struct hostap
+@@ -7635,42 +7635,50 @@ static int check_assoc_ies(struct hostap
  
  #ifdef CONFIG_IEEE80211BE
  
 -void ieee80211_ml_build_assoc_resp(struct hostapd_data *hapd,
--				   struct mld_link_info *link)
+-				   struct mld_link_info *link,
+-				   struct sta_info *sta)
 +static u8 * ml_put_elem(u8 *p, u8 *end, const u8 *elem)
  {
+-	struct hostapd_data *assoc_hapd;
+-	struct sta_info *assoc_sta;
 -	u8 buf[EHT_ML_MAX_STA_PROF_LEN];
 -	u8 *p = buf;
 -	size_t buflen = sizeof(buf);
@@ -138,26 +141,88 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		p = hostapd_eid_spatial_reuse(hapd, p);
  		p = hostapd_eid_he_mu_edca_parameter_set(hapd, p);
  		p = hostapd_eid_he_6ghz_band_cap(hapd, p);
-@@ -6208,15 +6219,162 @@ void ieee80211_ml_build_assoc_resp(struc
+@@ -7681,88 +7689,171 @@ void ieee80211_ml_build_assoc_resp(struc
  	}
  
  	p = hostapd_eid_ext_capab(hapd, p, false);
--	p = hostapd_eid_mbo(hapd, p, buf + buflen - p);
--	p = hostapd_eid_wmm(hapd, p);
 +#ifdef CONFIG_FST
 +	p = ml_put_buf(p, end, hapd->iface->fst_ies);
 +#endif /* CONFIG_FST */
 +	p = ml_put_elem(p, end, rsnxe);
 +	p = ml_put_elem(p, end, rsne);
-+
+ 
++#ifdef CONFIG_IEEE80211BN
++	if (hostapd_is_uhr_enabled(hapd)) {
++		p = hostapd_eid_uhr_capab(hapd, p, IEEE80211_MODE_AP);
++		p = hostapd_eid_uhr_operation(hapd, p, false);
++	}
++#endif /* CONFIG_IEEE80211BN */
+ 
+-	assoc_sta = hostapd_ml_get_assoc_sta(hapd, sta, &assoc_hapd);
+-	if (assoc_sta && hapd != assoc_hapd) {
+-		const u8 *rsnxe, *assoc_rsnxe;
+-#ifdef CONFIG_ENC_ASSOC
+-		const u8 *rsne, *assoc_rsne;
+-#endif /* CONFIG_ENC_ASSOC */
+-		u8 ie_count = 0, non_inherit_ie[2];
+-
+-		rsnxe = hostapd_wpa_ie(hapd, WLAN_EID_RSNX);
+-		assoc_rsnxe = hostapd_wpa_ie(assoc_hapd, WLAN_EID_RSNX);
+-#ifdef CONFIG_ENC_ASSOC
+-		rsne = hostapd_wpa_ie(hapd, WLAN_EID_RSN);
+-		assoc_rsne = hostapd_wpa_ie(assoc_hapd, WLAN_EID_RSN);
+-#endif /* CONFIG_ENC_ASSOC */
 +	p = hostapd_eid_mbo(hapd, p, end - p);
 +	if (sta && (sta->flags & WLAN_STA_WMM))
 +		p = hostapd_eid_wmm(hapd, p);
-+
++	if (sta)
++		p = hostapd_eid_wfa_capab(hapd, sta, p);
+ 
+-		if (assoc_hapd->conf->rsn_override_omit_rsnxe)
+-			goto omit_rsnxe;
 +	return ml_put_buf(p, end, hapd->conf->assocresp_elements);
 +}
-+
-+
+ 
+-		if (assoc_rsnxe && !rsnxe)
+-			non_inherit_ie[ie_count++] = WLAN_EID_RSNX;
+ 
+-		if ((!assoc_rsnxe && rsnxe) ||
+-		    (rsnxe && assoc_rsnxe &&
+-		     (rsnxe[1] != assoc_rsnxe[1] ||
+-		      os_memcmp(rsnxe, assoc_rsnxe, 2 + rsnxe[1]) != 0))) {
+-			size_t rsnx_ie_len;
+-
+-			rsnx_ie_len = 2 + rsnxe[1];
+-			if ((size_t) (buf + buflen - p) >= rsnx_ie_len) {
+-				os_memcpy(p, rsnxe, rsnx_ie_len);
+-				p += rsnx_ie_len;
+-			}
+-		}
+-omit_rsnxe:
+-#ifdef CONFIG_ENC_ASSOC
+-		if (ap_sta_is_epp(sta) &&
+-		    wpa_auth_ap_sta_support_assoc_enc(sta->wpa_sm)) {
+-			if ((rsne && assoc_rsne &&
+-			     (rsne[1] != assoc_rsne[1] ||
+-			      os_memcmp(rsne, assoc_rsne, 2 + rsne[1]) != 0))) {
+-				size_t rsn_ie_len;
+-
+-				rsn_ie_len = 2 + rsne[1];
+-				if ((size_t) (buf + buflen - p) >= rsn_ie_len) {
+-					os_memcpy(p, rsne, rsn_ie_len);
+-					p += rsn_ie_len;
+-				}
+-			}
+-		}
+-#endif /* CONFIG_ENC_ASSOC */
+-		if (ie_count) {
+-			*p++ = WLAN_EID_EXTENSION;
+-			*p++ = 2 + ie_count + 1;
+-			*p++ = WLAN_EID_EXT_NON_INHERITANCE;
+-			*p++ = ie_count;
+-			os_memcpy(p, non_inherit_ie, ie_count);
+-			p += ie_count;
+-			*p++ = 0; /* No Element ID Extension List */
 +/* IEEE Std 802.11be-2024, 35.3.3.5.1: the profile inherits each element of the
 + * frame that it does not carry and that the Non-Inheritance element does not
 + * list. */
@@ -180,16 +245,20 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 +			if (!get_ie(prof, prof_len, elem->id))
 +				eid_bmap[elem->id / 8] |= BIT(elem->id % 8);
 +			continue;
-+		}
+ 		}
 +
 +		if (!elem->datalen)
 +			continue;
 +		ext = elem->data[0];
 +		if (!get_ie_ext(prof, prof_len, ext))
 +			ext_bmap[ext / 8] |= BIT(ext % 8);
-+	}
+ 	}
 +}
-+
+ 
+-#ifdef CONFIG_IEEE80211BN
+-	if (hostapd_is_uhr_enabled(hapd)) {
+-		p = hostapd_eid_uhr_capab(hapd, p, IEEE80211_MODE_AP);
+-		p = hostapd_eid_uhr_operation(hapd, p, false);
 +
 +/* 9.4.2.239 lists the IDs in increasing order. */
 +static u8 ml_bmap_to_ids(const u8 *bmap, u8 *ids)
@@ -200,12 +269,23 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 +	for (i = 0; i < 256; i++) {
 +		if (bmap[i / 8] & BIT(i % 8))
 +			ids[count++] = i;
-+	}
-+
+ 	}
+-#endif /* CONFIG_IEEE80211BN */
+ 
+-	p = hostapd_eid_mbo(hapd, p, buf + buflen - p);
+-	p = hostapd_eid_wmm(hapd, p);
 +	return count;
 +}
-+
-+
+ 
+-	if (sta)
+-		p = hostapd_eid_wfa_capab(hapd, sta, p);
+ 
+-	if (hapd->conf->assocresp_elements &&
+-	    (size_t) (buf + buflen - p) >=
+-	    wpabuf_len(hapd->conf->assocresp_elements)) {
+-		os_memcpy(p, wpabuf_head(hapd->conf->assocresp_elements),
+-			  wpabuf_len(hapd->conf->assocresp_elements));
+-		p += wpabuf_len(hapd->conf->assocresp_elements);
 +static bool ml_elem_equal(const u8 *a, const u8 *b)
 +{
 +	return a && b && a[1] == b[1] && os_memcmp(a, b, 2 + a[1]) == 0;
@@ -280,13 +360,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 +	/* AID is not included */
 +	prof_elems = p;
 +	p = ieee80211_ml_link_elems(hapd, sta, p, buf + buflen, rsne, rsnxe);
- 
--	if (hapd->conf->assocresp_elements &&
--	    (size_t) (buf + buflen - p) >=
--	    wpabuf_len(hapd->conf->assocresp_elements)) {
--		os_memcpy(p, wpabuf_head(hapd->conf->assocresp_elements),
--			  wpabuf_len(hapd->conf->assocresp_elements));
--		p += wpabuf_len(hapd->conf->assocresp_elements);
++
 +	if (inherit)
 +		ieee80211_ml_non_inherit(assoc_hapd, assoc_sta, prof_elems,
 +					 p - prof_elems, eid_bmap, ext_bmap);
@@ -309,27 +383,27 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	}
  
  out:
-@@ -6346,7 +6504,7 @@ out:
+@@ -7892,7 +7983,7 @@ out:
  	link->status = status;
  
  	if (!offload && type != LINK_PARSE_RECONF)
--		ieee80211_ml_build_assoc_resp(hapd, link);
+-		ieee80211_ml_build_assoc_resp(hapd, link, sta);
 +		ieee80211_ml_build_assoc_resp(hapd, link, sta, false);
  
  	wpa_printf(MSG_DEBUG, "MLD: link: status=%u", status);
  	if (status != WLAN_STATUS_SUCCESS) {
-@@ -6428,12 +6586,14 @@ int hostapd_process_assoc_ml_info(struct
+@@ -7974,12 +8065,14 @@ int hostapd_process_assoc_ml_info(struct
  
  			link->status = WLAN_STATUS_UNSPECIFIED_FAILURE;
  			if (!offload)
--				ieee80211_ml_build_assoc_resp(hapd, link);
+-				ieee80211_ml_build_assoc_resp(hapd, link, sta);
 +				ieee80211_ml_build_assoc_resp(hapd, link, sta,
 +							      false);
  		} else if (tx_link_status != WLAN_STATUS_SUCCESS) {
  			/* TX link rejected the connection */
  			link->status = WLAN_STATUS_DENIED_TX_LINK_NOT_ACCEPTED;
  			if (!offload)
--				ieee80211_ml_build_assoc_resp(hapd, link);
+-				ieee80211_ml_build_assoc_resp(hapd, link, sta);
 +				ieee80211_ml_build_assoc_resp(hapd, link, sta,
 +							      false);
  		} else {
@@ -337,23 +411,22 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  				    bss, sta, link, ies, ies_len,
 --- a/src/ap/ieee802_11.h
 +++ b/src/ap/ieee802_11.h
-@@ -316,7 +316,8 @@ int ieee80211_ml_process_link(struct hos
- 			      enum link_parse_type type, bool offload,
+@@ -323,7 +323,7 @@ int ieee80211_ml_process_link(struct hos
  			      bool *set_beacon);
  void ieee80211_ml_build_assoc_resp(struct hostapd_data *hapd,
--				   struct mld_link_info *link);
-+				   struct mld_link_info *link,
+ 				   struct mld_link_info *link,
+-				   struct sta_info *sta);
 +				   struct sta_info *sta, bool link_reconf);
  
  void ieee802_11_rx_protected_eht_action(struct hostapd_data *hapd,
  					const struct ieee80211_mgmt *mgmt,
 --- a/src/ap/ieee802_11_eht.c
 +++ b/src/ap/ieee802_11_eht.c
-@@ -1965,7 +1965,8 @@ hostapd_send_link_reconf_resp(struct hos
+@@ -1939,7 +1939,8 @@ hostapd_send_link_reconf_resp(struct hos
  				continue;
  
  			link->valid = true;
--			ieee80211_ml_build_assoc_resp(lhapd, link);
+-			ieee80211_ml_build_assoc_resp(lhapd, link, assoc_sta);
 +			ieee80211_ml_build_assoc_resp(lhapd, link, assoc_sta,
 +						      true);
  		}

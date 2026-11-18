@@ -46,7 +46,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	return 0;
 --- a/src/ap/drv_callbacks.c
 +++ b/src/ap/drv_callbacks.c
-@@ -2159,7 +2159,7 @@ static void hostapd_event_eapol_rx(struc
+@@ -2160,7 +2160,7 @@ static void hostapd_event_eapol_rx(struc
  		hapd = orig_hapd;
  	}
  
@@ -57,7 +57,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  #endif /* HOSTAPD */
 --- a/src/ap/ieee802_11.c
 +++ b/src/ap/ieee802_11.c
-@@ -2884,7 +2884,7 @@ static void handle_auth_802_1x(struct ho
+@@ -4130,7 +4130,7 @@ static void handle_auth_802_1x(struct ho
  
  	/* Forward the extracted EAP PDU to AS */
  	ieee802_1x_receive(hapd, sta->addr, (const u8 *) eapol_pdu,
@@ -66,7 +66,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	return;
  
  fail:
-@@ -6228,7 +6228,7 @@ skip_wpa_ies:
+@@ -7694,7 +7694,7 @@ skip_wpa_ies:
  			goto out;
  		}
  
@@ -75,7 +75,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  					  channel_width_to_int(ci.chanwidth),
  					  ci.seg1_idx, &tx_chanwidth,
  					  &tx_seg1_idx) < 0) {
-@@ -9286,7 +9286,8 @@ skip_update:
+@@ -10863,7 +10863,8 @@ skip_update:
  				hapd, mgmt->da,
  				wpabuf_head(sta->pending_eapol_rx->buf),
  				wpabuf_len(sta->pending_eapol_rx->buf),
@@ -87,7 +87,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		os_free(sta->pending_eapol_rx);
 --- a/src/ap/ieee802_11_shared.c
 +++ b/src/ap/ieee802_11_shared.c
-@@ -87,9 +87,19 @@ void ieee802_11_send_sa_query_req(struct
+@@ -89,9 +89,19 @@ void ieee802_11_send_sa_query_req(struct
  
  #ifdef CONFIG_OCV
  	if (sta && wpa_auth_uses_ocv(sta->wpa_sm)) {
@@ -108,7 +108,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  			wpa_printf(MSG_WARNING,
  				   "Failed to get channel info for OCI element in SA Query Request");
  			return;
-@@ -307,6 +317,7 @@ void ieee802_11_sa_query_action(struct h
+@@ -309,6 +319,7 @@ void ieee802_11_sa_query_action(struct h
  		}
  
  		if (get_sta_tx_parameters(sta->wpa_sm,
@@ -116,7 +116,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  					  channel_width_to_int(ci.chanwidth),
  					  ci.seg1_idx, &tx_chanwidth,
  					  &tx_seg1_idx) < 0)
-@@ -345,6 +356,25 @@ void ieee802_11_sa_query_action(struct h
+@@ -347,6 +358,25 @@ void ieee802_11_sa_query_action(struct h
  
  	/* MLME-SAQuery.confirm */
  
@@ -231,7 +231,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  struct eap_over_auth_data {
 --- a/src/ap/wpa_auth.c
 +++ b/src/ap/wpa_auth.c
-@@ -492,12 +492,22 @@ static void wpa_sta_disconnect(struct wp
+@@ -491,12 +491,22 @@ static void wpa_sta_disconnect(struct wp
  
  
  #ifdef CONFIG_OCV
@@ -256,7 +256,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  }
  #endif /* CONFIG_OCV */
  
-@@ -1066,6 +1076,7 @@ wpa_auth_sta_init(struct wpa_authenticat
+@@ -1065,6 +1075,7 @@ wpa_auth_sta_init(struct wpa_authenticat
  	sm->wpa_auth = wpa_auth;
  	sm->group = wpa_auth->group;
  	wpa_group_get(sm->wpa_auth, sm->group);
@@ -264,7 +264,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  #ifdef CONFIG_IEEE80211BE
  	sm->mld_assoc_link_id = -1;
  #endif /* CONFIG_IEEE80211BE */
-@@ -1698,7 +1709,7 @@ static bool wpa_auth_valid_counter(struc
+@@ -1699,7 +1710,7 @@ static bool wpa_auth_valid_counter(struc
  
  void wpa_receive(struct wpa_authenticator *wpa_auth,
  		 struct wpa_state_machine *sm,
@@ -273,7 +273,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  {
  	struct ieee802_1x_hdr *hdr;
  	struct wpa_eapol_key *key;
-@@ -2046,6 +2057,7 @@ void wpa_receive(struct wpa_authenticato
+@@ -2048,6 +2059,7 @@ void wpa_receive(struct wpa_authenticato
  	if (!sm->last_rx_eapol_key)
  		goto out;
  	sm->last_rx_eapol_key_len = data_len;
@@ -281,7 +281,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  	sm->rx_eapol_key_secure = !!(key_info & WPA_KEY_INFO_SECURE);
  	sm->EAPOLKeyReceived = true;
-@@ -3669,7 +3681,7 @@ static struct wpabuf * fils_prepare_plai
+@@ -3684,7 +3696,7 @@ static struct wpabuf * fils_prepare_plai
  		struct wpa_channel_info ci;
  		u8 *pos;
  
@@ -290,7 +290,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  			wpa_printf(MSG_WARNING,
  				   "FILS: Failed to get channel info for OCI element");
  			wpabuf_clear_free(plain);
-@@ -3776,16 +3788,18 @@ u8 * hostapd_eid_assoc_fils_session(stru
+@@ -3791,16 +3803,18 @@ u8 * hostapd_eid_assoc_fils_session(stru
  
  
  #ifdef CONFIG_OCV
@@ -313,7 +313,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  }
  #endif /* CONFIG_OCV */
  
-@@ -4111,14 +4125,15 @@ SM_STATE(WPA_PTK, PTKCALCNEGOTIATING)
+@@ -4128,14 +4142,15 @@ SM_STATE(WPA_PTK, PTKCALCNEGOTIATING)
  		int tx_seg1_idx;
  		enum oci_verify_result res;
  
@@ -331,7 +331,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  					  channel_width_to_int(ci.chanwidth),
  					  ci.seg1_idx, &tx_chanwidth,
  					  &tx_seg1_idx) < 0)
-@@ -4385,7 +4400,7 @@ static int ocv_oci_add(struct wpa_state_
+@@ -4401,7 +4416,7 @@ static int ocv_oci_add(struct wpa_state_
  	if (!wpa_auth_uses_ocv(sm))
  		return 0;
  
@@ -340,17 +340,29 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		wpa_printf(MSG_WARNING,
  			   "Failed to get channel info for OCI element");
  		return -1;
-@@ -5775,12 +5790,18 @@ SM_STATE(WPA_PTK_GROUP, REKEYNEGOTIATING
+@@ -5827,19 +5842,27 @@ SM_STATE(WPA_PTK_GROUP, REKEYNEGOTIATING
+ 		kde_len = pos - kde;
+ #ifdef CONFIG_IEEE80211BE
  	} else if (sm->wpa == WPA_VERSION_WPA2 && is_mld) {
- 		kde_len = wpa_auth_ml_group_kdes_len(sm, KDE_ALL_LINKS);
- 		if (kde_len) {
-+			kde_len += ocv_oci_len(sm);
+-		kde_len = wpa_auth_ml_group_kdes_len(sm, KDE_ALL_LINKS);
+-		if (kde_len) {
++		size_t ml_len;
++
++		ml_len = wpa_auth_ml_group_kdes_len(sm, KDE_ALL_LINKS);
++		if (ml_len) {
++			kde_len = ml_len + ocv_oci_len(sm);
  			kde_buf = os_malloc(kde_len);
  			if (!kde_buf)
  				return;
  
  			kde = pos = kde_buf;
- 			pos = wpa_auth_ml_group_kdes(sm, pos, KDE_ALL_LINKS);
+-			pos = wpa_auth_ml_group_kdes(sm, pos, kde_buf + kde_len,
++			pos = wpa_auth_ml_group_kdes(sm, pos, kde_buf + ml_len,
+ 						     KDE_ALL_LINKS);
+ 			if (!pos) {
+ 				os_free(kde_buf);
+ 				return;
+ 			}
 +			if (ocv_oci_add(sm, &pos,
 +					conf->oci_freq_override_eapol_g1) < 0) {
 +				os_free(kde_buf);
@@ -359,7 +371,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  			kde_len = pos - kde_buf;
  		}
  #endif /* CONFIG_IEEE80211BE */
-@@ -5843,14 +5864,15 @@ SM_STATE(WPA_PTK_GROUP, REKEYESTABLISHED
+@@ -5904,14 +5927,15 @@ SM_STATE(WPA_PTK_GROUP, REKEYESTABLISHED
  		int tx_chanwidth;
  		int tx_seg1_idx;
  
@@ -379,7 +391,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  					  &tx_seg1_idx) < 0)
 --- a/src/ap/wpa_auth.h
 +++ b/src/ap/wpa_auth.h
-@@ -406,9 +406,10 @@ struct wpa_auth_callbacks {
+@@ -412,9 +412,10 @@ struct wpa_auth_callbacks {
  			  size_t data_len);
  	int (*send_oui)(void *ctx, const u8 *dst, u8 oui_suffix, const u8 *data,
  			size_t data_len);
@@ -392,7 +404,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  				 int ap_max_chanwidth, int ap_seg1_idx,
  				 int *bandwidth, int *seg1_idx);
  	void (*store_ptksa)(void *ctx, const u8 *addr, int cipher,
-@@ -496,7 +497,7 @@ void wpa_auth_sta_no_wpa(struct wpa_stat
+@@ -503,7 +504,7 @@ void wpa_auth_sta_no_wpa(struct wpa_stat
  void wpa_auth_sta_deinit(struct wpa_state_machine *sm);
  void wpa_receive(struct wpa_authenticator *wpa_auth,
  		 struct wpa_state_machine *sm,
@@ -401,7 +413,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  enum wpa_event {
  	WPA_AUTH, WPA_ASSOC, WPA_DISASSOC, WPA_DEAUTH, WPA_REAUTH,
  	WPA_REAUTH_EAPOL, WPA_ASSOC_FT, WPA_ASSOC_FILS, WPA_DRV_STA_REMOVED
-@@ -644,8 +645,9 @@ const u8 *  wpa_fils_validate_fils_sessi
+@@ -653,8 +654,9 @@ const u8 *  wpa_fils_validate_fils_sessi
  int wpa_fils_validate_key_confirm(struct wpa_state_machine *sm, const u8 *ies,
  				  size_t ies_len);
  
@@ -424,7 +436,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  }
  #endif /* CONFIG_OCV */
  
-@@ -3683,7 +3683,7 @@ int wpa_ft_validate_reassoc(struct wpa_s
+@@ -3729,7 +3729,7 @@ int wpa_ft_validate_reassoc(struct wpa_s
  			goto out;
  		}
  
@@ -435,7 +447,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  					  &tx_seg1_idx) < 0)
 --- a/src/ap/wpa_auth_glue.c
 +++ b/src/ap/wpa_auth_glue.c
-@@ -695,6 +695,39 @@ static int hostapd_wpa_auth_get_seqnum(v
+@@ -701,6 +701,39 @@ static int hostapd_wpa_auth_get_seqnum(v
  }
  
  
@@ -475,7 +487,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  int hostapd_wpa_auth_send_eapol(void *ctx, const u8 *addr,
  				const u8 *data, size_t data_len,
  				int encrypt)
-@@ -702,11 +735,6 @@ int hostapd_wpa_auth_send_eapol(void *ct
+@@ -708,11 +741,6 @@ int hostapd_wpa_auth_send_eapol(void *ct
  	struct hostapd_data *hapd = ctx;
  	struct sta_info *sta;
  	u32 flags = 0;
@@ -487,7 +499,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  #ifdef CONFIG_TESTING_OPTIONS
  	if (hapd->ext_eapol_frame_io) {
-@@ -724,19 +752,12 @@ int hostapd_wpa_auth_send_eapol(void *ct
+@@ -730,19 +758,12 @@ int hostapd_wpa_auth_send_eapol(void *ct
  #endif /* CONFIG_TESTING_OPTIONS */
  
  	sta = ap_get_sta(hapd, addr);
@@ -510,7 +522,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  }
  
  
-@@ -1144,10 +1165,24 @@ static int hostapd_wpa_auth_send_oui(voi
+@@ -1150,10 +1171,24 @@ static int hostapd_wpa_auth_send_oui(voi
  }
  
  
@@ -537,7 +549,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	return hostapd_drv_channel_info(hapd, ci);
  }
  
-@@ -1220,16 +1255,17 @@ static int hostapd_wpa_auth_update_vlan(
+@@ -1226,16 +1261,17 @@ static int hostapd_wpa_auth_update_vlan(
  
  
  #ifdef CONFIG_OCV
@@ -560,7 +572,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  					"Failed to get STA info to validate received OCI");
  		return -1;
  	}
-@@ -1854,6 +1890,7 @@ int hostapd_setup_wpa(struct hostapd_dat
+@@ -1860,6 +1896,7 @@ int hostapd_setup_wpa(struct hostapd_dat
  		.send_ether = hostapd_wpa_auth_send_ether,
  		.send_oui = hostapd_wpa_auth_send_oui,
  		.channel_info = hostapd_channel_info,
@@ -591,7 +603,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		wpa_printf(MSG_DEBUG,
 --- a/wpa_supplicant/ap.c
 +++ b/wpa_supplicant/ap.c
-@@ -1299,7 +1299,7 @@ void wpa_supplicant_ap_rx_eapol(struct w
+@@ -1313,7 +1313,7 @@ void wpa_supplicant_ap_rx_eapol(struct w
  				enum frame_encryption encrypted)
  {
  	ieee802_1x_receive(wpa_s->ap_iface->bss[0], src_addr, buf, len,
@@ -602,7 +614,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
 --- a/wpa_supplicant/ibss_rsn.c
 +++ b/wpa_supplicant/ibss_rsn.c
-@@ -814,7 +814,7 @@ static int ibss_rsn_process_rx_eapol(str
+@@ -815,7 +815,7 @@ static int ibss_rsn_process_rx_eapol(str
  
  		wpa_printf(MSG_DEBUG, "RSN: IBSS RX EAPOL for Authenticator "
  			   "from "MACSTR, MAC2STR(peer->addr));

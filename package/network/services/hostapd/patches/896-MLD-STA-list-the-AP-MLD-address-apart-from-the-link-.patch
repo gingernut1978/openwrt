@@ -265,7 +265,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
 --- a/wpa_supplicant/ctrl_iface.c
 +++ b/wpa_supplicant/ctrl_iface.c
-@@ -2720,8 +2720,9 @@ static int wpa_supplicant_ctrl_iface_bss
+@@ -2744,8 +2744,9 @@ static int wpa_supplicant_ctrl_iface_bss
  		end = buf + buflen;
  		e = wpa_s->bssid_ignore;
  		while (e) {
@@ -279,7 +279,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  			pos += ret;
 --- a/wpa_supplicant/events.c
 +++ b/wpa_supplicant/events.c
-@@ -5186,7 +5186,8 @@ static void wpa_supplicant_event_disasso
+@@ -5388,7 +5388,8 @@ static void wpa_supplicant_event_disasso
  		bssid = wpa_s->bssid;
  		if (is_zero_ether_addr(bssid))
  			bssid = wpa_s->pending_bssid;
@@ -289,7 +289,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		wpas_auth_failed(wpa_s, "WRONG_KEY", wpa_s->pending_bssid);
  		wpas_notify_psk_mismatch(wpa_s);
  	}
-@@ -5330,7 +5331,9 @@ wpa_supplicant_event_michael_mic_failure
+@@ -5532,7 +5533,9 @@ wpa_supplicant_event_michael_mic_failure
  		/* initialize countermeasures */
  		wpa_s->countermeasures = 1;
  
@@ -315,7 +315,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		if (wpa_s->current_ssid) {
 --- a/wpa_supplicant/wpa_supplicant.c
 +++ b/wpa_supplicant/wpa_supplicant.c
-@@ -230,7 +230,8 @@ static void wpa_supplicant_timeout(void
+@@ -231,7 +231,8 @@ static void wpa_supplicant_timeout(void
  		bssid = wpa_s->pending_bssid;
  	wpa_msg(wpa_s, MSG_INFO, "Authentication with " MACSTR " timed out.",
  		MAC2STR(bssid));
@@ -325,7 +325,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	wpa_sm_notify_disassoc(wpa_s->wpa);
  	wpa_supplicant_deauthenticate(wpa_s, WLAN_REASON_DEAUTH_LEAVING);
  	wpa_s->reassociate = 1;
-@@ -298,7 +299,14 @@ void wpa_supplicant_cancel_auth_timeout(
+@@ -299,7 +300,14 @@ void wpa_supplicant_cancel_auth_timeout(
  {
  	wpa_dbg(wpa_s, MSG_DEBUG, "Cancelling authentication timeout");
  	eloop_cancel_timeout(wpa_supplicant_timeout, wpa_s, NULL);
@@ -341,7 +341,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	os_free(wpa_s->last_con_fail_realm);
  	wpa_s->last_con_fail_realm = NULL;
  	wpa_s->last_con_fail_realm_len = 0;
-@@ -9189,7 +9197,8 @@ void wpas_connection_failed(struct wpa_s
+@@ -10126,7 +10134,8 @@ void wpas_connection_failed(struct wpa_s
  	 * Add the failed BSSID into the ignore list and speed up next scan
  	 * attempt if there could be other APs that could accept association.
  	 */

@@ -29,7 +29,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/src/drivers/driver_nl80211_event.c
 +++ b/src/drivers/driver_nl80211_event.c
-@@ -377,8 +377,9 @@ static void nl80211_mlo_assoc_link_move(
+@@ -379,8 +379,9 @@ static void nl80211_mlo_assoc_link_move(
  		wpa_printf(MSG_DEBUG,
  			   "nl80211: MLO: association link %u removed, use link %d",
  			   mlo->assoc_link_id, i);

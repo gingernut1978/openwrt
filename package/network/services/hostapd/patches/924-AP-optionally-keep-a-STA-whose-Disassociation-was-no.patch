@@ -23,7 +23,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/src/ap/ieee802_11.c
 +++ b/src/ap/ieee802_11.c
-@@ -9422,7 +9422,7 @@ static void handle_disassoc_cb(struct hostapd_data *hapd,
+@@ -10999,7 +10999,7 @@ static void handle_disassoc_cb(struct ho
  		wpa_printf(MSG_DEBUG, "STA " MACSTR " did not acknowledge "
  			   "disassoc", MAC2STR(sta->addr));
  
@@ -34,7 +34,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
 --- a/src/ap/sta_info.c
 +++ b/src/ap/sta_info.c
-@@ -1268,19 +1268,30 @@ static void ap_sta_remove_in_other_bss(struct hostapd_data *hapd,
+@@ -1295,19 +1295,30 @@ static void ap_sta_remove_in_other_bss(s
  }
  
  
@@ -69,7 +69,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  static void ap_sta_disconnect_common(struct hostapd_data *hapd,
  				     struct sta_info *sta, unsigned int timeout,
  				     bool free_1x)
-@@ -2252,14 +2263,15 @@ void ap_sta_deauth_cb(struct hostapd_data *hapd, struct sta_info *sta)
+@@ -2283,14 +2294,15 @@ void ap_sta_deauth_cb(struct hostapd_dat
  }
  
  
@@ -87,7 +87,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  }
  
  
-@@ -2278,6 +2290,7 @@ void ap_sta_clear_disconnect_timeouts(struct hostapd_data *hapd,
+@@ -2309,6 +2321,7 @@ void ap_sta_clear_disconnect_timeouts(st
  			   hapd->conf->iface, MAC2STR(sta->addr));
  	sta->flags &= ~(WLAN_STA_PENDING_DEAUTH_CB |
  			WLAN_STA_PENDING_DISASSOC_CB);
@@ -97,7 +97,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		wpa_printf(MSG_DEBUG,
 --- a/src/ap/sta_info.h
 +++ b/src/ap/sta_info.h
-@@ -181,6 +181,7 @@ struct sta_info {
+@@ -185,6 +185,7 @@ struct sta_info {
  	unsigned int ft_over_ds:1;
  	unsigned int external_dh_updated:1;
  	unsigned int post_csa_sa_query:1;
@@ -105,7 +105,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  	u16 auth_alg;
  
-@@ -510,7 +511,8 @@ static inline int ap_sta_is_authorized(struct sta_info *sta)
+@@ -516,7 +517,8 @@ static inline int ap_sta_is_authorized(s
  }
  
  void ap_sta_deauth_cb(struct hostapd_data *hapd, struct sta_info *sta);

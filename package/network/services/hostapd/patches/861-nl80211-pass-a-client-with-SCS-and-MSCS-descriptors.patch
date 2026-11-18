@@ -25,7 +25,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 
 --- a/src/drivers/driver.h
 +++ b/src/drivers/driver.h
-@@ -836,6 +836,8 @@ enum wps_mode {
+@@ -848,6 +848,8 @@ enum wps_mode {
   * @tclas_len: Length of @tclas
   * @qos_char: The QoS Characteristics element as received, or %NULL
   * @qos_char_len: Length of @qos_char
@@ -34,7 +34,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
   */
  struct hostapd_scs_desc {
  	u8 id;
-@@ -845,6 +847,7 @@ struct hostapd_scs_desc {
+@@ -857,6 +859,7 @@ struct hostapd_scs_desc {
  	size_t tclas_len;
  	const u8 *qos_char;
  	size_t qos_char_len;
@@ -42,7 +42,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  };
  
  /**
-@@ -855,6 +858,10 @@ struct hostapd_scs_desc {
+@@ -867,6 +870,10 @@ struct hostapd_scs_desc {
   * @stream_timeout: Stream Timeout in TUs
   * @tclas_mask: The TCLAS Mask elements as received, or %NULL for a removal
   * @tclas_mask_len: Length of @tclas_mask
@@ -53,7 +53,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
   */
  struct hostapd_mscs_desc {
  	u8 req_type;
-@@ -863,6 +870,8 @@ struct hostapd_mscs_desc {
+@@ -875,6 +882,8 @@ struct hostapd_mscs_desc {
  	u32 stream_timeout;
  	const u8 *tclas_mask;
  	size_t tclas_mask_len;
@@ -64,7 +64,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  /**
 --- a/src/drivers/driver_nl80211.c
 +++ b/src/drivers/driver_nl80211.c
-@@ -13053,7 +13053,10 @@ static int nl80211_set_scs(void *priv, c
+@@ -13191,7 +13191,10 @@ static int nl80211_set_scs(void *priv, c
  		     desc->tclas)) ||
  	    (desc->qos_char &&
  	     nla_put(msg, NL80211_SCS_DESC_ATTR_QOS_CHAR, desc->qos_char_len,
@@ -76,7 +76,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		nlmsg_free(msg);
  		return -ENOBUFS;
  	}
-@@ -13111,7 +13114,12 @@ static int nl80211_set_mscs(void *priv,
+@@ -13249,7 +13252,12 @@ static int nl80211_set_mscs(void *priv,
  			desc->stream_timeout) ||
  	    (desc->tclas_mask &&
  	     nla_put(msg, NL80211_MSCS_DESC_ATTR_TCLAS_MASK,
@@ -92,7 +92,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	}
 --- a/src/drivers/nl80211_copy.h
 +++ b/src/drivers/nl80211_copy.h
-@@ -6259,6 +6259,12 @@ enum nl80211_scs_req_type {
+@@ -6282,6 +6282,12 @@ enum nl80211_scs_req_type {
   * @NL80211_SCS_DESC_ATTR_QOS_CHAR: the whole QoS Characteristics element
   *	(binary), header included, as received over the air
   * @NL80211_SCS_DESC_ATTR_STATUS: IEEE status code (u16), kernel to userspace
@@ -105,7 +105,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
   *
   * @__NL80211_SCS_DESC_ATTR_AFTER_LAST: internal use
   * @NL80211_SCS_DESC_ATTR_MAX: highest attribute
-@@ -6271,6 +6277,7 @@ enum nl80211_scs_desc_attr {
+@@ -6294,6 +6300,7 @@ enum nl80211_scs_desc_attr {
  	NL80211_SCS_DESC_ATTR_TCLAS,
  	NL80211_SCS_DESC_ATTR_QOS_CHAR,
  	NL80211_SCS_DESC_ATTR_STATUS,
@@ -113,7 +113,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  	__NL80211_SCS_DESC_ATTR_AFTER_LAST,
  	NL80211_SCS_DESC_ATTR_MAX = __NL80211_SCS_DESC_ATTR_AFTER_LAST - 1
-@@ -6291,6 +6298,15 @@ enum nl80211_scs_desc_attr {
+@@ -6314,6 +6321,15 @@ enum nl80211_scs_desc_attr {
   * @NL80211_MSCS_DESC_ATTR_TCLAS_MASK: one or more TCLAS Mask elements
   *	(binary), as received over the air. Required for add and change,
   *	rejected for remove.
@@ -129,7 +129,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
   *
   * @__NL80211_MSCS_DESC_ATTR_AFTER_LAST: internal use
   * @NL80211_MSCS_DESC_ATTR_MAX: highest attribute
-@@ -6302,6 +6318,8 @@ enum nl80211_mscs_desc_attr {
+@@ -6325,6 +6341,8 @@ enum nl80211_mscs_desc_attr {
  	NL80211_MSCS_DESC_ATTR_UP_LIMIT,
  	NL80211_MSCS_DESC_ATTR_STREAM_TIMEOUT,
  	NL80211_MSCS_DESC_ATTR_TCLAS_MASK,

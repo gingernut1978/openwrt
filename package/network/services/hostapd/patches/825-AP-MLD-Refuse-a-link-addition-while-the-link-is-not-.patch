@@ -22,7 +22,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/src/ap/ieee802_11_eht.c
 +++ b/src/ap/ieee802_11_eht.c
-@@ -2308,6 +2308,12 @@ hostapd_parse_link_reconf_req_sta_profil
+@@ -2287,6 +2287,12 @@ hostapd_parse_link_reconf_req_sta_profil
  		goto add_to_list;
  	}
  

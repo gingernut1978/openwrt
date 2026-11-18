@@ -22,8 +22,8 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/src/ap/ieee802_11.c
 +++ b/src/ap/ieee802_11.c
-@@ -357,6 +357,25 @@ static u16 auth_shared_key(struct hostap
- #endif /* CONFIG_WEP */
+@@ -915,6 +915,25 @@ add_last_8021x_auth_transcript(struct ho
+ #endif /* CONFIG_IEEE8021X_AUTH */
  
  
 +/* A station gets these codes in the course of a procedure that goes on. */
@@ -48,7 +48,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  static int send_auth_reply(struct hostapd_data *hapd, struct sta_info *sta,
  			   const u8 *dst,
  			   u16 auth_alg, u16 auth_transaction, u16 resp,
-@@ -555,6 +574,8 @@ static void handle_auth_ft_finish(void *
+@@ -1133,6 +1152,8 @@ static void handle_auth_ft_finish(void *
  	struct sta_info *sta;
  	int reply_res;
  
@@ -57,7 +57,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	reply_res = send_auth_reply(hapd, NULL, dst, WLAN_AUTH_FT,
  				    auth_transaction, status, ies, ies_len,
  				    "auth-ft-finish");
-@@ -1768,6 +1789,7 @@ static void handle_auth_sae(struct hosta
+@@ -2342,6 +2363,7 @@ static void handle_auth_sae(struct hosta
  	const u8 *pos, *end;
  	int sta_removed = 0;
  	bool success_status;
@@ -65,7 +65,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  	if (!groups) {
  		groups = default_groups;
-@@ -2047,11 +2069,8 @@ static void handle_auth_sae(struct hosta
+@@ -2641,11 +2663,8 @@ static void handle_auth_sae(struct hosta
  
  			if (sae_check_confirm(sta->sae, var, var_len,
  					      NULL) < 0) {
@@ -79,7 +79,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  				if (sae_password_track_fail(hapd, sta)) {
  					wpa_printf(MSG_DEBUG,
  						   "SAE: Reject mismatching Confirm so that another password can be attempted by "
-@@ -2061,9 +2080,12 @@ static void handle_auth_sae(struct hosta
+@@ -2655,9 +2674,12 @@ static void handle_auth_sae(struct hosta
  						sta->sae->tmp->
  							try_other_password = 1;
  					resp = WLAN_STATUS_UNSPECIFIED_FAILURE;
@@ -94,7 +94,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  				goto reply;
  			}
  			sae_password_track_success(hapd, sta);
-@@ -2093,6 +2115,11 @@ reply:
+@@ -2687,6 +2709,11 @@ reply:
  		    !data && end - pos >= 2)
  			data = wpabuf_alloc_copy(pos, 2);
  
@@ -106,7 +106,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		send_auth_reply(hapd, sta, ap_sta_link_addr(hapd, sta),
  				WLAN_AUTH_SAE,
  				auth_transaction, resp,
-@@ -3367,6 +3394,8 @@ static void handle_auth_fils_finish(stru
+@@ -4628,6 +4655,8 @@ static void handle_auth_fils_finish(stru
  	auth_alg = (pub ||
  		    resp == WLAN_STATUS_FINITE_CYCLIC_GROUP_NOT_SUPPORTED) ?
  		WLAN_AUTH_FILS_SK_PFS : WLAN_AUTH_FILS_SK;
@@ -115,7 +115,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	send_auth_reply(hapd, sta, sta->addr, auth_alg, 2, resp,
  			data ? wpabuf_head(data) : (u8 *) "",
  			data ? wpabuf_len(data) : 0, "auth-fils-finish");
-@@ -4897,6 +4926,10 @@ static void handle_auth(struct hostapd_d
+@@ -6230,6 +6259,10 @@ static void handle_auth(struct hostapd_d
   fail:
  	dst = mgmt->sa;
  
@@ -126,7 +126,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	reply_res = send_auth_reply(hapd, sta, dst, auth_alg,
  				    auth_alg == WLAN_AUTH_SAE ?
  				    auth_transaction : auth_transaction + 1,
-@@ -8087,6 +8120,10 @@ static void handle_assoc(struct hostapd_
+@@ -9615,6 +9648,10 @@ static void handle_assoc(struct hostapd_
  	}
  #endif /* CONFIG_TESTING_OPTIONS */
  
@@ -139,7 +139,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  					    mld_addrs_not_translated ?
 --- a/src/ap/wpa_auth.c
 +++ b/src/ap/wpa_auth.c
-@@ -243,10 +243,12 @@ static inline int wpa_auth_mic_failure_r
+@@ -242,10 +242,12 @@ static inline int wpa_auth_mic_failure_r
  
  
  static inline void wpa_auth_psk_failure_report(
@@ -154,7 +154,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  }
  
  
-@@ -4023,7 +4025,9 @@ SM_STATE(WPA_PTK, PTKCALCNEGOTIATING)
+@@ -4040,7 +4042,9 @@ SM_STATE(WPA_PTK, PTKCALCNEGOTIATING)
  				LOGGER_DEBUG,
  				"invalid MIC in msg 2/4 of 4-Way Handshake");
  		if (psk_found)
@@ -167,7 +167,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
 --- a/src/ap/wpa_auth.h
 +++ b/src/ap/wpa_auth.h
-@@ -377,7 +377,8 @@ struct wpa_auth_callbacks {
+@@ -383,7 +383,8 @@ struct wpa_auth_callbacks {
  		       const char *txt);
  	void (*disconnect)(void *ctx, const u8 *addr, u16 reason);
  	int (*mic_failure_report)(void *ctx, const u8 *addr);
@@ -179,7 +179,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	int (*get_eapol)(void *ctx, const u8 *addr, wpa_eapol_variable var);
 --- a/src/ap/wpa_auth_glue.c
 +++ b/src/ap/wpa_auth_glue.c
-@@ -411,13 +411,16 @@ static int hostapd_wpa_auth_mic_failure_
+@@ -417,13 +417,16 @@ static int hostapd_wpa_auth_mic_failure_
  }
  
  
@@ -220,7 +220,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  int hostapd_notif_assoc(struct hostapd_data *hapd, const u8 *addr,
  			const u8 *req_ies, size_t req_ies_len,
  			const u8 *resp_ies, size_t resp_ies_len,
-@@ -416,13 +428,14 @@ int hostapd_notif_assoc(struct hostapd_d
+@@ -417,13 +429,14 @@ int hostapd_notif_assoc(struct hostapd_d
  	} else if (!hostapd_acceptable_sta_addr(hapd, addr, addr, false)) {
  		wpa_printf(MSG_INFO, "STA " MACSTR " not allowed to connect",
  			   MAC2STR(addr));
@@ -238,7 +238,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  			return -1;
  		}
  	}
-@@ -1039,7 +1052,7 @@ fail:
+@@ -1040,7 +1053,7 @@ fail:
  	if (status >= 0)
  		hostapd_sta_assoc(hapd, addr, reassoc, status, buf, p - buf);
  #endif /* CONFIG_IEEE80211R_AP */

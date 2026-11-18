@@ -35,7 +35,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/src/ap/ieee802_11.c
 +++ b/src/ap/ieee802_11.c
-@@ -6277,7 +6277,10 @@ out:
+@@ -7744,7 +7744,10 @@ out:
  		struct wpa_state_machine *sm = sta->wpa_sm;
  
  #ifdef CONFIG_IEEE80211BE
@@ -47,7 +47,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		clear_wpa_sm_for_all_sta(hapd, sm);
  #endif /* CONFIG_IEEE80211BE */
  
-@@ -6296,7 +6299,8 @@ out:
+@@ -7763,7 +7766,8 @@ out:
  		} else {
  			sta->wpa_sm = NULL;
  #ifdef CONFIG_IEEE80211BE

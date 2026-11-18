@@ -33,7 +33,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		hapd->eht_mld_link_removal_offload ||
 --- a/src/ap/hostapd.h
 +++ b/src/ap/hostapd.h
-@@ -1047,6 +1047,7 @@ void hostapd_link_remove_tx_status(struc
+@@ -1043,6 +1043,7 @@ void hostapd_link_remove_tx_status(struc
  void hostapd_link_remove_expired(struct hostapd_data *hapd, u16 links);
  bool hostapd_link_remove_beacon_held(struct hostapd_data *hapd, bool was_set);
  void hostapd_link_remove_beacon_set(struct hostapd_data *hapd);
@@ -43,7 +43,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  u8 hostapd_get_mld_id(struct hostapd_data *hapd);
 --- a/src/ap/ieee802_11.c
 +++ b/src/ap/ieee802_11.c
-@@ -6565,6 +6565,13 @@ int ieee80211_ml_process_link(struct hos
+@@ -8044,6 +8044,13 @@ int ieee80211_ml_process_link(struct hos
  		goto out;
  	}
  
@@ -59,7 +59,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		wpa_printf(MSG_INFO, "MLD: link: Station already exists");
 --- a/src/ap/ieee802_11_eht.c
 +++ b/src/ap/ieee802_11_eht.c
-@@ -1186,6 +1186,12 @@ static u16 hostapd_mld_validate_assoc_in
+@@ -1160,6 +1160,12 @@ static u16 hostapd_mld_validate_assoc_in
  		return WLAN_STATUS_SUCCESS;
  	}
  

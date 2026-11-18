@@ -43,7 +43,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/src/ap/ieee802_11.c
 +++ b/src/ap/ieee802_11.c
-@@ -4288,6 +4288,58 @@ static bool assoc_resp_pending(struct st
+@@ -5589,6 +5589,58 @@ static bool assoc_resp_pending(struct st
  }
  
  
@@ -102,7 +102,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  static void handle_auth(struct hostapd_data *hapd,
  			const struct ieee80211_mgmt *mgmt, size_t len,
  			int rssi, int from_queue)
-@@ -4683,8 +4735,10 @@ static void handle_auth(struct hostapd_d
+@@ -5987,8 +6039,10 @@ static void handle_auth(struct hostapd_d
  	sta->last_seq_ctrl = seq_ctrl;
  	sta->last_subtype = WLAN_FC_STYPE_AUTH;
  	/* PASN does not start the association over */
@@ -114,7 +114,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  #ifdef CONFIG_MBO
  	sta->auth_rssi = rssi;
  #endif /* CONFIG_MBO */
-@@ -7663,6 +7717,14 @@ static void handle_assoc(struct hostapd_
+@@ -9196,6 +9250,14 @@ static void handle_assoc(struct hostapd_
  			       seq_ctrl);
  		return;
  	}
@@ -129,9 +129,9 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	sta->last_seq_ctrl = seq_ctrl;
  	sta->last_subtype = reassoc ? WLAN_FC_STYPE_REASSOC_REQ :
  		WLAN_FC_STYPE_ASSOC_REQ;
-@@ -8895,6 +8957,8 @@ static void handle_assoc_cb(struct hosta
- 	else
- 		status = le_to_host16(mgmt->u.assoc_resp.status_code);
+@@ -10481,6 +10543,8 @@ static void handle_assoc_cb(struct hosta
+ 	wpabuf_free(sta->unacked_assoc_resp);
+ 	sta->unacked_assoc_resp = NULL;
  
 +	assoc_resp_ack_set(sta, ok, status);
 +
@@ -140,7 +140,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  			       HOSTAPD_LEVEL_DEBUG,
 --- a/src/ap/sta_info.c
 +++ b/src/ap/sta_info.c
-@@ -475,6 +475,8 @@ void ap_free_sta(struct hostapd_data *ha
+@@ -513,6 +513,8 @@ void ap_free_sta(struct hostapd_data *ha
  	sta->assoc_frame_taxonomy = NULL;
  #endif /* CONFIG_TAXONOMY */
  
@@ -149,7 +149,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	ht40_intolerant_remove(hapd->iface, sta);
  
  #ifdef CONFIG_P2P
-@@ -1905,15 +1907,25 @@ const u8 * ap_sta_wpa_get_dpp_pkhash(str
+@@ -1940,15 +1942,25 @@ const u8 * ap_sta_wpa_get_dpp_pkhash(str
  }
  
  
@@ -179,7 +179,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	return true;
 --- a/src/ap/sta_info.h
 +++ b/src/ap/sta_info.h
-@@ -270,6 +270,10 @@ struct sta_info {
+@@ -277,6 +277,10 @@ struct sta_info {
  	/* Last Authentication/(Re)Association Request/Action frame subtype */
  	u8 last_subtype;
  	struct os_reltime assoc_resp_pending_since;
@@ -190,7 +190,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  #ifdef CONFIG_MBO
  	u8 cell_capa; /* 0 = unknown (not an MBO STA); otherwise,
-@@ -439,6 +443,7 @@ const u8 * ap_sta_wpa_get_dpp_pkhash(str
+@@ -459,6 +463,7 @@ const u8 * ap_sta_wpa_get_dpp_pkhash(str
  void ap_sta_disconnect(struct hostapd_data *hapd, struct sta_info *sta,
  		       const u8 *addr, u16 reason);
  

@@ -28,7 +28,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/src/ap/ieee802_11.c
 +++ b/src/ap/ieee802_11.c
-@@ -5052,7 +5052,8 @@ static u16 check_wmm(struct hostapd_data
+@@ -6447,7 +6447,8 @@ static u16 check_wmm(struct hostapd_data
  }
  
  static u16 check_multi_ap(struct hostapd_data *hapd, struct sta_info *sta,
@@ -38,7 +38,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  {
  	struct multi_ap_params multi_ap;
  	u16 status;
-@@ -5062,7 +5063,16 @@ static u16 check_multi_ap(struct hostapd
+@@ -6457,7 +6458,16 @@ static u16 check_multi_ap(struct hostapd
  	if (!hapd->conf->multi_ap)
  		return WLAN_STATUS_SUCCESS;
  
@@ -56,7 +56,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		if (!(hapd->conf->multi_ap & FRONTHAUL_BSS)) {
  			hostapd_logger(hapd, sta->addr,
  				       HOSTAPD_MODULE_IEEE80211,
-@@ -5074,11 +5084,6 @@ static u16 check_multi_ap(struct hostapd
+@@ -6469,11 +6479,6 @@ static u16 check_multi_ap(struct hostapd
  		return WLAN_STATUS_SUCCESS;
  	}
  
@@ -68,7 +68,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	if (multi_ap.capability && multi_ap.capability != MULTI_AP_BACKHAUL_STA)
  		hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE80211,
  			       HOSTAPD_LEVEL_INFO,
-@@ -5122,6 +5127,7 @@ static u16 check_multi_ap(struct hostapd
+@@ -6517,6 +6522,7 @@ static u16 check_multi_ap(struct hostapd
  			       "Backhaul STA tries to associate with fronthaul-only BSS");
  
  	sta->flags |= WLAN_STA_MULTI_AP;
@@ -76,7 +76,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	return WLAN_STATUS_SUCCESS;
  }
  
-@@ -5599,7 +5605,14 @@ static int __check_assoc_ies(struct host
+@@ -6997,7 +7003,14 @@ static int __check_assoc_ies(struct host
  	if (resp != WLAN_STATUS_SUCCESS)
  		goto out;
  
@@ -92,7 +92,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	if (resp != WLAN_STATUS_SUCCESS)
  		goto out;
  
-@@ -6608,6 +6621,7 @@ int ieee80211_ml_process_link(struct hos
+@@ -8087,6 +8100,7 @@ int ieee80211_ml_process_link(struct hos
  	}
  
  	sta->flags |= origin_sta->flags | WLAN_STA_ASSOC_REQ_OK;
@@ -102,7 +102,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	sta->auth_alg = origin_sta->auth_alg;
 --- a/src/ap/sta_info.h
 +++ b/src/ap/sta_info.h
-@@ -114,6 +114,7 @@ struct sta_info {
+@@ -123,6 +123,7 @@ struct sta_info {
  	u8 supported_rates[WLAN_SUPP_RATES_MAX];
  	int supported_rates_len;
  	u8 qosinfo; /* Valid when WLAN_STA_WMM is set */

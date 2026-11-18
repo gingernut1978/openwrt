@@ -17,7 +17,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/src/ap/ieee802_11.c
 +++ b/src/ap/ieee802_11.c
-@@ -8352,7 +8352,7 @@ static void handle_beacon(struct hostapd
+@@ -9885,7 +9885,7 @@ static void handle_beacon(struct hostapd
  
  #ifdef CONFIG_ROBUST_AV
  static void hostapd_dscp_action(struct hostapd_data *hapd, struct sta_info *sta,
@@ -26,7 +26,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  {
  	u8 subtype;
  
-@@ -8367,9 +8367,13 @@ static void hostapd_dscp_action(struct h
+@@ -9900,9 +9900,13 @@ static void hostapd_dscp_action(struct h
  	subtype = *pos++;
  	switch (subtype) {
  	case QM_DSCP_POLICY_QUERY:
@@ -40,7 +40,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		hostapd_handle_dscp_policy_response(hapd, sta, pos, end - pos);
  		break;
  	default:
-@@ -8409,7 +8413,8 @@ static int hostapd_action_vs(struct host
+@@ -9942,7 +9946,8 @@ static int hostapd_action_vs(struct host
  				   "DSCP: Ignoring unprotected frame");
  			return -1;
  		}

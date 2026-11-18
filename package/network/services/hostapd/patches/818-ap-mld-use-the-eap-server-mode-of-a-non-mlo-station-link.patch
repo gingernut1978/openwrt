@@ -56,7 +56,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
 --- a/src/eap_server/eap.h
 +++ b/src/eap_server/eap.h
-@@ -273,9 +273,11 @@ struct eap_config {
+@@ -274,9 +274,11 @@ struct eap_config {
  struct eap_session_data {
  	const struct wpabuf *assoc_wps_ie;
  	/* The links of an AP MLD share the EAP server configuration, while
@@ -136,7 +136,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  #ifdef CONFIG_TESTING_OPTIONS
 --- a/src/eapol_auth/eapol_auth_sm.c
 +++ b/src/eapol_auth/eapol_auth_sm.c
-@@ -789,7 +789,7 @@ eapol_auth_alloc(struct eapol_authentica
+@@ -799,7 +799,7 @@ eapol_auth_alloc(struct eapol_authentica
  		 int flags, const struct wpabuf *assoc_wps_ie,
  		 const struct wpabuf *assoc_p2p_ie, void *sta_ctx,
  		 const char *identity, const char *radius_cui,
@@ -145,7 +145,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  {
  	struct eapol_state_machine *sm;
  	struct eap_session_data eap_sess;
-@@ -848,6 +848,7 @@ eapol_auth_alloc(struct eapol_authentica
+@@ -858,6 +858,7 @@ eapol_auth_alloc(struct eapol_authentica
  	eap_sess.peer_addr = addr;
  	eap_sess.wps = wps;
  	eap_sess.msg_ctx = msg_ctx;

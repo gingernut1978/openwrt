@@ -26,7 +26,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/src/ap/drv_callbacks.c
 +++ b/src/ap/drv_callbacks.c
-@@ -2577,6 +2577,8 @@ static void hostapd_event_color_change(s
+@@ -2578,6 +2578,8 @@ static void hostapd_event_color_change(s
  			hostapd_cleanup_cca_params(bss);
  		}
  	}
@@ -37,7 +37,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
 --- a/src/ap/hostapd.c
 +++ b/src/ap/hostapd.c
-@@ -5586,10 +5586,12 @@ void hostapd_switch_color_timeout_handle
+@@ -5611,10 +5611,12 @@ void hostapd_switch_color_timeout_handle
  		hapd->iface->conf->he_op.he_bss_color = os_random() % 63 + 1;
  		for (b = 0; b < hapd->iface->num_bss; b++)
  			ieee802_11_set_beacon(hapd->iface->bss[b]);
@@ -50,7 +50,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  }
  
  
-@@ -5662,7 +5664,11 @@ static void hostapd_bss_colors_in_use_ag
+@@ -5687,7 +5689,11 @@ static void hostapd_bss_colors_in_use_ag
  				       hostapd_bss_colors_in_use_timeout,
  				       iface, NULL);
  

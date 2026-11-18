@@ -38,7 +38,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 
 --- a/src/ap/ieee802_11.c
 +++ b/src/ap/ieee802_11.c
-@@ -4215,6 +4215,21 @@ static void handle_auth_pasn(struct host
+@@ -5516,6 +5516,21 @@ static void handle_auth_pasn(struct host
  #endif /* CONFIG_PASN */
  
  
@@ -60,7 +60,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  static void handle_auth(struct hostapd_data *hapd,
  			const struct ieee80211_mgmt *mgmt, size_t len,
  			int rssi, int from_queue)
-@@ -4230,7 +4245,10 @@ static void handle_auth(struct hostapd_d
+@@ -5531,7 +5546,10 @@ static void handle_auth(struct hostapd_d
  	u16 seq_ctrl;
  	struct radius_sta rad_info;
  	const u8 *dst, *sa;
@@ -72,7 +72,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  	if (len < IEEE80211_HDRLEN + sizeof(mgmt->u.auth)) {
  		wpa_printf(MSG_INFO, "handle_auth - too short payload (len=%lu)",
-@@ -4552,9 +4570,20 @@ static void handle_auth(struct hostapd_d
+@@ -5853,9 +5871,20 @@ static void handle_auth(struct hostapd_d
  	/* Set the non-AP MLD information based on the initial Authentication
  	 * frame. Once the STA entry has been added to the driver, the driver
  	 * will translate addresses in the frame and we need to avoid overriding
@@ -96,7 +96,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		ap_sta_free_sta_profile(&sta->mld_info);
  		os_memset(&sta->mld_info, 0, sizeof(sta->mld_info));
  
-@@ -4571,7 +4600,7 @@ static void handle_auth(struct hostapd_d
+@@ -5872,7 +5901,7 @@ static void handle_auth(struct hostapd_d
  			os_memcpy(sta->mld_info.common_info.mld_addr, sa,
  				  ETH_ALEN);
  			os_memcpy(sta->mld_info.links[link_id].peer_addr,
@@ -105,7 +105,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  			os_memcpy(sta->mld_info.links[link_id].local_addr,
  				  hapd->own_addr, ETH_ALEN);
  		}
-@@ -4605,7 +4634,8 @@ static void handle_auth(struct hostapd_d
+@@ -5909,7 +5938,8 @@ static void handle_auth(struct hostapd_d
  	 *
  	 * If this is not the first transaction, in a multi-step authentication
  	 * algorithm, the station already exists in the driver
@@ -115,7 +115,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	 *
  	 * In mesh mode, the station was already added to the driver when the
  	 * NEW_PEER_CANDIDATE event is received.
-@@ -4622,7 +4652,8 @@ static void handle_auth(struct hostapd_d
+@@ -5926,7 +5956,8 @@ static void handle_auth(struct hostapd_d
  	if (FULL_AP_CLIENT_STATE_SUPP(hapd->iface->drv_flags) &&
  	    (!(sta->flags & WLAN_STA_MFP) || !ap_sta_is_authorized(sta)) &&
  	    !(hapd->conf->mesh & MESH_ENABLED) &&
@@ -125,7 +125,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		if (ap_sta_re_add(hapd, sta) < 0) {
  			resp = WLAN_STATUS_AP_UNABLE_TO_HANDLE_NEW_STA;
  			goto fail;
-@@ -4731,11 +4762,6 @@ static void handle_auth(struct hostapd_d
+@@ -6065,11 +6096,6 @@ static void handle_auth(struct hostapd_d
   fail:
  	dst = mgmt->sa;
  
@@ -137,7 +137,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	reply_res = send_auth_reply(hapd, sta, dst, auth_alg,
  				    auth_alg == WLAN_AUTH_SAE ?
  				    auth_transaction : auth_transaction + 1,
-@@ -8500,6 +8526,10 @@ static void handle_auth_cb(struct hostap
+@@ -10078,6 +10104,10 @@ static void handle_auth_cb(struct hostap
  	bool success_status;
  
  	sta = ap_get_sta(hapd, mgmt->da);

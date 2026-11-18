@@ -19,18 +19,16 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 
 --- a/src/ap/ieee802_11.c
 +++ b/src/ap/ieee802_11.c
-@@ -6799,8 +6799,10 @@ static u16 send_assoc_resp(struct hostap
- 		buflen += 3 + sizeof(struct ieee80211_eht_operation);
- 		if (hapd->iconf->punct_bitmap)
+@@ -8289,8 +8289,7 @@ static u16 send_assoc_resp(struct hostap
  			buflen += EHT_OPER_DISABLED_SUBCHAN_BITMAP_SIZE;
--		if (ap_sta_is_mld(hapd, sta))
-+		if (ap_sta_is_mld(hapd, sta)) {
+ 		if (ap_sta_is_mld(hapd, sta)) {
  			buflen += hostapd_eid_eht_ml_tid_to_link_map_len(hapd);
+-			buflen += hostapd_eid_eht_basic_ml_len(hapd, sta,
+-							       false, true);
 +			buflen += hostapd_eid_eht_ml_assoc_len(hapd, sta);
-+		}
+ 		}
  	}
  #endif /* CONFIG_IEEE80211BE */
- 
 --- a/src/ap/ieee802_11.h
 +++ b/src/ap/ieee802_11.h
 @@ -126,6 +126,8 @@ u8 * hostapd_eid_eht_ml_beacon(struct ho
@@ -44,7 +42,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  				     bool include_mld_id, bool include_bpcc);
 --- a/src/ap/ieee802_11_eht.c
 +++ b/src/ap/ieee802_11_eht.c
-@@ -745,29 +745,36 @@ out:
+@@ -709,29 +709,36 @@ out:
  }
  
  
@@ -97,7 +95,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		return eid;
  
  	wpa_printf(MSG_DEBUG, "MLD: Reconfiguration ML: Adding element");
-@@ -786,8 +793,7 @@ static u8 * hostapd_eid_eht_reconf_ml(st
+@@ -750,8 +757,7 @@ static u8 * hostapd_eid_eht_reconf_ml(st
  	*pos++ = 1;
  
  	/* Add the per station profiles */
@@ -107,7 +105,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		if (!other_hapd->eht_mld_link_removal_count)
  			continue;
  
-@@ -888,11 +894,23 @@ u8 * hostapd_eid_eht_ml_assoc(struct hos
+@@ -862,11 +868,23 @@ u8 * hostapd_eid_eht_ml_assoc(struct hos
  }
  
  
@@ -126,8 +124,8 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  				     struct mld_info *info,
  				     bool include_mld_id)
  {
--	return hostapd_eid_eht_ml_len(info, include_mld_id, false);
-+	return hostapd_eid_eht_ml_len(info, include_mld_id, false) +
+-	return hostapd_eid_eht_ml_len(hapd, info, include_mld_id, false);
++	return hostapd_eid_eht_ml_len(hapd, info, include_mld_id, false) +
 +		hostapd_eid_eht_reconf_ml_len(hapd);
  }
  

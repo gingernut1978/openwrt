@@ -24,7 +24,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/src/ap/sta_info.c
 +++ b/src/ap/sta_info.c
-@@ -1275,6 +1275,7 @@ static void ap_sta_disassoc_cb_timeout(void *eloop_ctx, void *timeout_ctx)
+@@ -1302,6 +1302,7 @@ static void ap_sta_disassoc_cb_timeout(v
  
  	wpa_printf(MSG_DEBUG, "%s: Disassociation callback for STA " MACSTR,
  		   hapd->conf->iface, MAC2STR(sta->addr));
@@ -32,7 +32,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	ap_sta_remove(hapd, sta);
  	mlme_disassociate_indication(hapd, sta, sta->disassoc_reason);
  }
-@@ -1357,6 +1358,7 @@ static void ap_sta_deauth_cb_timeout(void *eloop_ctx, void *timeout_ctx)
+@@ -1386,6 +1387,7 @@ static void ap_sta_deauth_cb_timeout(voi
  
  	wpa_printf(MSG_DEBUG, "%s: Deauthentication callback for STA " MACSTR,
  		   hapd->conf->iface, MAC2STR(sta->addr));
@@ -40,7 +40,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	ap_sta_remove(hapd, sta);
  	mlme_deauthenticate_indication(hapd, sta, sta->deauth_reason);
  }
-@@ -2245,7 +2247,6 @@ void ap_sta_deauth_cb(struct hostapd_data *hapd, struct sta_info *sta)
+@@ -2276,7 +2278,6 @@ void ap_sta_deauth_cb(struct hostapd_dat
  		wpa_printf(MSG_DEBUG, "Ignore deauth cb for test frame");
  		return;
  	}
@@ -48,7 +48,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	eloop_cancel_timeout(ap_sta_deauth_cb_timeout, hapd, sta);
  	ap_sta_deauth_cb_timeout(hapd, sta);
  }
-@@ -2257,7 +2258,6 @@ void ap_sta_disassoc_cb(struct hostapd_data *hapd, struct sta_info *sta)
+@@ -2288,7 +2289,6 @@ void ap_sta_disassoc_cb(struct hostapd_d
  		wpa_printf(MSG_DEBUG, "Ignore disassoc cb for test frame");
  		return;
  	}
@@ -56,7 +56,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	eloop_cancel_timeout(ap_sta_disassoc_cb_timeout, hapd, sta);
  	ap_sta_disassoc_cb_timeout(hapd, sta);
  }
-@@ -2276,6 +2276,8 @@ void ap_sta_clear_disconnect_timeouts(struct hostapd_data *hapd,
+@@ -2307,6 +2307,8 @@ void ap_sta_clear_disconnect_timeouts(st
  			   "%s: Removed ap_sta_disassoc_cb_timeout timeout for "
  			   MACSTR,
  			   hapd->conf->iface, MAC2STR(sta->addr));

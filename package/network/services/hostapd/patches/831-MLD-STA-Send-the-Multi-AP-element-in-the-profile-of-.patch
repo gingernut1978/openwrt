@@ -31,7 +31,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/src/drivers/driver.h
 +++ b/src/drivers/driver.h
-@@ -3010,12 +3010,18 @@ struct wpa_mlo_signal_info {
+@@ -3071,12 +3071,18 @@ struct wpa_mlo_signal_info {
   * @add_links: Bitmask of links to be added
   * @add_link_bssid: Array of BSSIDs for the links to be added
   * @add_link_freq: Array of frequencies for the links to be added
@@ -52,7 +52,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
 --- a/src/drivers/driver_nl80211.c
 +++ b/src/drivers/driver_nl80211.c
-@@ -15880,7 +15880,10 @@ nl80211_send_link_reconfig_request(void
+@@ -16021,7 +16021,10 @@ nl80211_send_link_reconfig_request(void
  		    nla_put(msg, NL80211_ATTR_MAC, ETH_ALEN,
  			    info->add_link_bssid[link_id]) ||
  		    nla_put_u32(msg, NL80211_ATTR_WIPHY_FREQ,
@@ -66,7 +66,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		nla_nest_end(msg, attr);
 --- a/wpa_supplicant/ctrl_iface.c
 +++ b/wpa_supplicant/ctrl_iface.c
-@@ -12672,6 +12672,8 @@ wpa_supplicant_ctrl_iface_setup_link_rec
+@@ -12849,6 +12849,8 @@ wpa_supplicant_ctrl_iface_setup_link_rec
  {
  	const char *pos, *add_pos, *dlt_pos;
  	struct wpa_mlo_reconfig_info info;
@@ -75,7 +75,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	int link_id;
  
  	add_pos = os_strstr(cmd, "add=");
-@@ -12687,8 +12689,7 @@ wpa_supplicant_ctrl_iface_setup_link_rec
+@@ -12864,8 +12866,7 @@ wpa_supplicant_ctrl_iface_setup_link_rec
  		return -1;
  	}
  
@@ -85,7 +85,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  	if (add_pos) {
  		pos = add_pos + 4;
-@@ -12741,6 +12742,14 @@ wpa_supplicant_ctrl_iface_setup_link_rec
+@@ -12918,6 +12919,14 @@ wpa_supplicant_ctrl_iface_setup_link_rec
  		} while (pos && pos != add_pos);
  	}
  
@@ -102,7 +102,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
 --- a/wpa_supplicant/sme.c
 +++ b/wpa_supplicant/sme.c
-@@ -4395,21 +4395,14 @@ mscs_fail:
+@@ -5523,21 +5523,14 @@ mscs_fail:
  
  	if (ssid && ssid->multi_ap_backhaul_sta) {
  		size_t multi_ap_ie_len;
@@ -130,7 +130,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
 --- a/wpa_supplicant/wpa_supplicant.c
 +++ b/wpa_supplicant/wpa_supplicant.c
-@@ -3828,6 +3828,21 @@ int wpas_populate_wfa_capa(struct wpa_su
+@@ -4571,6 +4571,21 @@ int wpas_populate_wfa_capa(struct wpa_su
  }
  
  
@@ -152,7 +152,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  #ifdef CONFIG_IEEE8021X_AUTH
  static bool wpas_set_802_1x_auth_alg(struct wpa_supplicant *wpa_s,
  				     struct wpa_bss *bss,
-@@ -4464,17 +4479,10 @@ mscs_end:
+@@ -5310,17 +5325,10 @@ mscs_end:
  
  	if (ssid->multi_ap_backhaul_sta) {
  		size_t multi_ap_ie_len;
@@ -174,11 +174,11 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		}
 --- a/wpa_supplicant/wpa_supplicant_i.h
 +++ b/wpa_supplicant/wpa_supplicant_i.h
-@@ -1922,6 +1922,7 @@ int wpas_build_ext_capab(struct wpa_supp
+@@ -1977,6 +1977,7 @@ int wpas_build_ext_capab(struct wpa_supp
  int wpas_populate_wfa_capa(struct wpa_supplicant *wpa_s, struct wpa_bss *bss,
  			   u8 *wpa_ie, size_t wpa_ie_len,
  			   size_t max_wpa_ie_len);
 +size_t wpas_build_multi_ap_ie(struct wpa_ssid *ssid, u8 *buf, size_t len);
  int wpas_update_random_addr(struct wpa_supplicant *wpa_s,
  			    enum wpas_mac_addr_style style,
- 			    struct wpa_ssid *ssid);
+ 			    struct wpa_ssid *ssid, bool update_lifetime);

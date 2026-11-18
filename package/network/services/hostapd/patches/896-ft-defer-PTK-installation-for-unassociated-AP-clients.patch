@@ -30,7 +30,7 @@ Link: https://patchwork.ozlabs.org/project/hostap/patch/CACmoRBbY__xZOxYfpi0Mo+E
 
 --- a/src/ap/wpa_auth.h
 +++ b/src/ap/wpa_auth.h
-@@ -419,6 +419,7 @@ struct wpa_auth_callbacks {
+@@ -426,6 +426,7 @@ struct wpa_auth_callbacks {
  				   const u8 *eapol, size_t eapol_len);
  #ifdef CONFIG_IEEE80211R_AP
  	struct wpa_state_machine * (*add_sta)(void *ctx, const u8 *sta_addr);
@@ -40,7 +40,7 @@ Link: https://patchwork.ozlabs.org/project/hostap/patch/CACmoRBbY__xZOxYfpi0Mo+E
  			struct vlan_description *vlan);
 --- a/src/ap/wpa_auth_ft.c
 +++ b/src/ap/wpa_auth_ft.c
-@@ -2869,7 +2869,7 @@ static inline int wpa_auth_add_sta_ft(st
+@@ -2871,7 +2871,7 @@ static inline int wpa_auth_add_sta_ft(st
  				      const u8 *addr)
  {
  	if (!wpa_auth->cb->add_sta_ft)
@@ -49,7 +49,7 @@ Link: https://patchwork.ozlabs.org/project/hostap/patch/CACmoRBbY__xZOxYfpi0Mo+E
  	return wpa_auth->cb->add_sta_ft(wpa_auth->cb_ctx, addr);
  }
  
-@@ -2896,15 +2896,8 @@ void wpa_ft_install_ptk(struct wpa_state
+@@ -2898,15 +2898,8 @@ void wpa_ft_install_ptk(struct wpa_state
  		return;
  	}
  
@@ -69,7 +69,7 @@ Link: https://patchwork.ozlabs.org/project/hostap/patch/CACmoRBbY__xZOxYfpi0Mo+E
  		return;
 --- a/src/ap/wpa_auth_glue.c
 +++ b/src/ap/wpa_auth_glue.c
-@@ -1335,9 +1335,15 @@ static int hostapd_wpa_auth_add_sta_ft(v
+@@ -1379,9 +1379,15 @@ static int hostapd_wpa_auth_add_sta_ft(v
  		 * previous association. */
  		wpa_printf(MSG_DEBUG,
  			   "FT: Remove and re-add driver STA entry after successful FT authentication");

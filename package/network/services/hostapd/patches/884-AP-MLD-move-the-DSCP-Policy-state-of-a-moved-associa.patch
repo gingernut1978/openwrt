@@ -22,8 +22,8 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 +#include "robust_av.h"
  
  
- static u16 ieee80211_eht_ppet_size(u16 ppe_thres_hdr, const u8 *phy_cap_info)
-@@ -1681,6 +1682,16 @@ struct sta_info * hostapd_ml_move_assoc_
+ 
+@@ -1655,6 +1656,16 @@ struct sta_info * hostapd_ml_move_assoc_
  	accounting_sta_move(hapd, sta, *assoc_hapd, assoc_sta);
  	ieee802_1x_move_station(*assoc_hapd, sta, assoc_sta);
  #ifdef CONFIG_ROBUST_AV

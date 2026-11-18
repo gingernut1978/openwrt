@@ -12,7 +12,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/src/ap/ieee802_11_eht.c
 +++ b/src/ap/ieee802_11_eht.c
-@@ -2834,6 +2834,8 @@ hostapd_handle_link_reconf_req(struct ho
+@@ -2813,6 +2813,8 @@ hostapd_handle_link_reconf_req(struct ho
  		}
  	} else {
  		struct wpa_channel_info ci;
@@ -21,7 +21,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  		if (!wpa_auth_uses_ocv(assoc_sta->wpa_sm)) {
  			wpa_printf(MSG_INFO,
-@@ -2847,9 +2849,16 @@ hostapd_handle_link_reconf_req(struct ho
+@@ -2826,9 +2828,16 @@ hostapd_handle_link_reconf_req(struct ho
  			goto out;
  		}
  

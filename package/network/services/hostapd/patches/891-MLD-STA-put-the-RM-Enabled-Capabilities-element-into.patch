@@ -18,7 +18,7 @@ association uses radio measurement.
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 --- a/wpa_supplicant/ctrl_iface.c
 +++ b/wpa_supplicant/ctrl_iface.c
-@@ -12673,7 +12673,8 @@ wpa_supplicant_ctrl_iface_setup_link_rec
+@@ -12850,7 +12850,8 @@ wpa_supplicant_ctrl_iface_setup_link_rec
  	const char *pos, *add_pos, *dlt_pos;
  	struct wpa_mlo_reconfig_info info;
  	struct wpa_ssid *ssid = wpa_s->current_ssid;
@@ -28,7 +28,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	int link_id;
  
  	add_pos = os_strstr(cmd, "add=");
-@@ -12742,12 +12743,25 @@ wpa_supplicant_ctrl_iface_setup_link_rec
+@@ -12919,12 +12920,25 @@ wpa_supplicant_ctrl_iface_setup_link_rec
  		} while (pos && pos != add_pos);
  	}
  
@@ -102,7 +102,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
   * @da: DA of the received frame
 --- a/wpa_supplicant/sme.c
 +++ b/wpa_supplicant/sme.c
-@@ -705,8 +705,7 @@ sme_build_802_1x_auth_request(struct wpa
+@@ -1285,8 +1285,7 @@ sme_build_802_1x_auth_request(struct wpa
  static void sme_auth_handle_rrm(struct wpa_supplicant *wpa_s,
  				struct wpa_bss *bss)
  {
@@ -112,7 +112,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	const u8 *rrm_ie;
  
  	wpa_s->rrm.rrm_used = 0;
-@@ -730,31 +729,17 @@ static void sme_auth_handle_rrm(struct w
+@@ -1310,31 +1309,17 @@ static void sme_auth_handle_rrm(struct w
  		return;
  	}
  
@@ -151,7 +151,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
 --- a/wpa_supplicant/wpa_supplicant_i.h
 +++ b/wpa_supplicant/wpa_supplicant_i.h
-@@ -1943,6 +1943,8 @@ int wpas_twt_send_setup(struct wpa_suppl
+@@ -1998,6 +1998,8 @@ int wpas_twt_send_setup(struct wpa_suppl
  int wpas_twt_send_teardown(struct wpa_supplicant *wpa_s, u8 flags);
  
  void wpas_rrm_reset(struct wpa_supplicant *wpa_s);

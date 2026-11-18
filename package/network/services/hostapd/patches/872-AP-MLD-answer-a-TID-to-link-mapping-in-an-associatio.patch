@@ -28,7 +28,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 
 --- a/src/ap/ieee802_11.c
 +++ b/src/ap/ieee802_11.c
-@@ -5713,6 +5713,9 @@ static int __check_assoc_ies(struct host
+@@ -7110,6 +7110,9 @@ static int __check_assoc_ies(struct host
  			resp = hostapd_process_ml_assoc_req(hapd, elems, sta);
  			if (resp != WLAN_STATUS_SUCCESS)
  				goto out;
@@ -38,7 +38,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		}
  	}
  #endif /* CONFIG_IEEE80211BE */
-@@ -7163,10 +7166,12 @@ rsnxe_done:
+@@ -8663,10 +8666,12 @@ rsnxe_done:
  			p = hostapd_eid_eht_ml_assoc(hapd, sta, p);
  		p = hostapd_eid_eht_capab(hapd, p, IEEE80211_MODE_AP);
  		p = hostapd_eid_eht_operation(hapd, p);
@@ -54,7 +54,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
 --- a/src/ap/ieee802_11.h
 +++ b/src/ap/ieee802_11.h
-@@ -345,6 +345,11 @@ void hostapd_neg_ttlm_teardown(struct ho
+@@ -348,6 +348,11 @@ void hostapd_neg_ttlm_teardown(struct ho
  			       struct sta_info *sta);
  void hostapd_neg_ttlm_assoc_cb(struct hostapd_data *hapd,
  			       struct sta_info *sta);
@@ -68,7 +68,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  size_t hostapd_eid_eht_ml_tid_to_link_map_len(struct hostapd_data *hapd);
 --- a/src/ap/ieee802_11_eht.c
 +++ b/src/ap/ieee802_11_eht.c
-@@ -3103,12 +3103,80 @@ void hostapd_neg_ttlm_resp_tx_status(str
+@@ -3082,12 +3082,80 @@ void hostapd_neg_ttlm_resp_tx_status(str
  }
  
  
@@ -152,7 +152,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  }
 --- a/src/ap/sta_info.h
 +++ b/src/ap/sta_info.h
-@@ -373,6 +373,9 @@ struct sta_info {
+@@ -374,6 +374,9 @@ struct sta_info {
  	bool neg_ttlm_req_dflt;
  	u8 neg_ttlm_req_token;
  	struct eht_neg_ttlm neg_ttlm_req;

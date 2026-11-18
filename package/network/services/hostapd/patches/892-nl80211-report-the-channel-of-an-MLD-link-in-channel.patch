@@ -18,7 +18,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/src/ap/ap_drv_ops.h
 +++ b/src/ap/ap_drv_ops.h
-@@ -445,7 +445,8 @@ static inline int hostapd_drv_channel_in
+@@ -447,7 +447,8 @@ static inline int hostapd_drv_channel_in
  {
  	if (!hapd->driver || !hapd->driver->channel_info)
  		return -1;
@@ -30,7 +30,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  static inline int
 --- a/src/ap/hostapd.h
 +++ b/src/ap/hostapd.h
-@@ -1100,6 +1100,15 @@ static inline bool hostapd_mld_is_first_
+@@ -1096,6 +1096,15 @@ static inline bool hostapd_mld_is_first_
  
  #endif /* CONFIG_IEEE80211BE */
  
@@ -48,7 +48,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  void hostapd_get_oper_chan_info_of_bss(struct hostapd_data *hapd,
 --- a/src/drivers/driver.h
 +++ b/src/drivers/driver.h
-@@ -5002,10 +5002,12 @@ struct wpa_driver_ops {
+@@ -5073,10 +5073,12 @@ struct wpa_driver_ops {
  	/**
  	 * channel_info - Get parameters of the current operating channel
  	 * @priv: Private driver interface data
@@ -178,7 +178,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  				return;
 --- a/wpa_supplicant/sme.c
 +++ b/wpa_supplicant/sme.c
-@@ -5444,7 +5444,7 @@ static void sme_send_sa_query_req(struct
+@@ -6636,7 +6636,7 @@ static void sme_send_sa_query_req(struct
  	if (wpa_sm_ocv_enabled(wpa_s->wpa)) {
  		struct wpa_channel_info ci;
  
@@ -187,7 +187,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  			wpa_printf(MSG_WARNING,
  				   "Failed to get channel info for OCI element in SA Query Request frame");
  			return;
-@@ -5610,7 +5610,7 @@ static void sme_process_sa_query_request
+@@ -6802,7 +6802,7 @@ static void sme_process_sa_query_request
  	if (wpa_sm_ocv_enabled(wpa_s->wpa)) {
  		struct wpa_channel_info ci;
  
@@ -196,7 +196,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  			wpa_printf(MSG_WARNING,
  				   "Failed to get channel info for OCI element in SA Query Response frame");
  			return;
-@@ -5705,7 +5705,7 @@ void sme_sa_query_rx(struct wpa_supplica
+@@ -6897,7 +6897,7 @@ void sme_sa_query_rx(struct wpa_supplica
  			return;
  		}
  
@@ -207,7 +207,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  			return;
 --- a/wpa_supplicant/wnm_sta.c
 +++ b/wpa_supplicant/wnm_sta.c
-@@ -113,7 +113,7 @@ int ieee802_11_send_wnmsleep_req(struct
+@@ -154,7 +154,7 @@ int ieee802_11_send_wnmsleep_req(struct
  	if (action == WNM_SLEEP_MODE_EXIT && wpa_sm_ocv_enabled(wpa_s->wpa)) {
  		struct wpa_channel_info ci;
  
@@ -216,7 +216,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  			wpa_printf(MSG_WARNING,
  				   "Failed to get channel info for OCI element in WNM-Sleep Mode frame");
  			os_free(wnmsleep_ie);
-@@ -384,7 +384,7 @@ static void ieee802_11_rx_wnmsleep_resp(
+@@ -447,7 +447,7 @@ static void ieee802_11_rx_wnmsleep_resp(
  	    wpa_sm_ocv_enabled(wpa_s->wpa)) {
  		struct wpa_channel_info ci;
  
@@ -227,7 +227,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  			return;
 --- a/wpa_supplicant/wpas_glue.c
 +++ b/wpa_supplicant/wpas_glue.c
-@@ -1311,7 +1311,7 @@ static int wpa_supplicant_channel_info(v
+@@ -1327,7 +1327,7 @@ static int wpa_supplicant_channel_info(v
  {
  	struct wpa_supplicant *wpa_s = _wpa_s;
  

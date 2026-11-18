@@ -63,7 +63,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/wpa_supplicant/events.c
 +++ b/wpa_supplicant/events.c
-@@ -4658,7 +4658,9 @@ static int wpa_drv_get_mlo_info(struct w
+@@ -4843,7 +4843,9 @@ static int wpa_drv_get_mlo_info(struct w
  	for_each_link(wpa_s->valid_links, i) {
  		os_memcpy(wpa_s->links[i].addr, mlo.links[i].addr, ETH_ALEN);
  		os_memcpy(wpa_s->links[i].bssid, mlo.links[i].bssid, ETH_ALEN);
@@ -74,7 +74,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		wpa_supplicant_update_link_bss(wpa_s, i, mlo.links[i].bssid);
  	}
  
-@@ -5983,7 +5985,7 @@ void wpa_supplicant_update_channel_list(
+@@ -6193,7 +6195,7 @@ void wpa_supplicant_update_channel_list(
  
  static void wpas_event_rx_mgmt_action(struct wpa_supplicant *wpa_s,
  				      const u8 *frame, size_t len, int freq,
@@ -83,7 +83,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  {
  	const struct ieee80211_mgmt *mgmt;
  	const u8 *payload;
-@@ -5993,6 +5995,11 @@ static void wpas_event_rx_mgmt_action(st
+@@ -6203,6 +6205,11 @@ static void wpas_event_rx_mgmt_action(st
  	if (len < IEEE80211_HDRLEN + 2)
  		return;
  
@@ -95,7 +95,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	mgmt = (const struct ieee80211_mgmt *) frame;
  	payload = frame + IEEE80211_HDRLEN;
  	category = *payload++;
-@@ -6019,14 +6026,14 @@ static void wpas_event_rx_mgmt_action(st
+@@ -6229,14 +6236,14 @@ static void wpas_event_rx_mgmt_action(st
  #ifdef CONFIG_SME
  	if (category == WLAN_ACTION_SA_QUERY) {
  		sme_sa_query_rx(wpa_s, mgmt->da, mgmt->sa, payload, plen,
@@ -112,7 +112,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		return;
  	}
  #endif /* CONFIG_WNM */
-@@ -6102,7 +6109,7 @@ static void wpas_event_rx_mgmt_action(st
+@@ -6312,7 +6319,7 @@ static void wpas_event_rx_mgmt_action(st
  		wpas_rrm_handle_radio_measurement_request(wpa_s, mgmt->sa,
  							  mgmt->da,
  							  payload + 1,
@@ -121,7 +121,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		return;
  	}
  
-@@ -6182,7 +6189,7 @@ static void wpas_event_rx_mgmt_action(st
+@@ -6408,7 +6415,7 @@ static void wpas_event_rx_mgmt_action(st
  	if (category == WLAN_ACTION_VENDOR_SPECIFIC_PROTECTED && plen > 4 &&
  	    WPA_GET_BE32(payload) == QM_ACTION_VENDOR_TYPE) {
  		wpas_handle_qos_mgmt_recv_action(wpa_s, mgmt->da, mgmt->sa,
@@ -130,7 +130,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		return;
  	}
  #endif /* CONFIG_NO_ROBUST_AV */
-@@ -6591,7 +6598,7 @@ static void wpas_event_unprot_beacon(str
+@@ -6892,7 +6899,7 @@ static void wpas_event_unprot_beacon(str
  				     struct unprot_beacon *data)
  {
  	struct wpabuf *buf;
@@ -139,7 +139,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  	if (!data || wpa_s->wpa_state != WPA_COMPLETED ||
  	    !ether_addr_equal(data->sa, wpa_s->bssid))
-@@ -6599,6 +6606,14 @@ static void wpas_event_unprot_beacon(str
+@@ -6900,6 +6907,14 @@ static void wpas_event_unprot_beacon(str
  	wpa_msg(wpa_s, MSG_INFO, WPA_EVENT_UNPROT_BEACON MACSTR,
  		MAC2STR(data->sa));
  
@@ -154,7 +154,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	buf = wpabuf_alloc(4);
  	if (!buf)
  		return;
-@@ -6608,7 +6623,7 @@ static void wpas_event_unprot_beacon(str
+@@ -6909,7 +6924,7 @@ static void wpas_event_unprot_beacon(str
  	wpabuf_put_u8(buf, 1); /* Dialog Token */
  	wpabuf_put_u8(buf, WNM_NOTIF_TYPE_BEACON_PROTECTION_FAILURE);
  
@@ -163,7 +163,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  				  wpa_s->own_addr, wpa_s->bssid,
  				  wpabuf_head(buf), wpabuf_len(buf), 0);
  	if (res < 0)
-@@ -7378,7 +7393,8 @@ void supplicant_event(void *ctx, enum wp
+@@ -7775,7 +7790,8 @@ void supplicant_event(void *ctx, enum wp
  					wpa_s, data->rx_mgmt.frame,
  					data->rx_mgmt.frame_len,
  					data->rx_mgmt.freq,
@@ -327,7 +327,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
 --- a/wpa_supplicant/sme.c
 +++ b/wpa_supplicant/sme.c
-@@ -5123,6 +5123,13 @@ static void sme_send_2040_bss_coex(struc
+@@ -6315,6 +6315,13 @@ static void sme_send_2040_bss_coex(struc
  	struct ieee80211_2040_bss_coex_ie *bc_ie;
  	struct ieee80211_2040_intol_chan_report *ic_report;
  	struct wpabuf *buf;
@@ -341,7 +341,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  	wpa_printf(MSG_DEBUG, "SME: Send 20/40 BSS Coexistence to " MACSTR
  		   " (num_channels=%u num_intol=%u)",
-@@ -5155,7 +5162,7 @@ static void sme_send_2040_bss_coex(struc
+@@ -6347,7 +6354,7 @@ static void sme_send_2040_bss_coex(struc
  			  num_channels);
  	}
  
@@ -350,7 +350,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  				wpa_s->own_addr, wpa_s->bssid,
  				wpabuf_head(buf), wpabuf_len(buf), 0) < 0) {
  		wpa_msg(wpa_s, MSG_INFO,
-@@ -5431,6 +5438,7 @@ static void sme_send_sa_query_req(struct
+@@ -6623,6 +6630,7 @@ static void sme_send_sa_query_req(struct
  {
  	u8 req[2 + WLAN_SA_QUERY_TR_ID_LEN + OCV_OCI_EXTENDED_LEN];
  	u8 req_len = 2 + WLAN_SA_QUERY_TR_ID_LEN;
@@ -358,7 +358,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  	wpa_dbg(wpa_s, MSG_DEBUG, "SME: Sending SA Query Request to "
  		MACSTR, MAC2STR(wpa_s->bssid));
-@@ -5444,12 +5452,15 @@ static void sme_send_sa_query_req(struct
+@@ -6636,12 +6644,15 @@ static void sme_send_sa_query_req(struct
  	if (wpa_sm_ocv_enabled(wpa_s->wpa)) {
  		struct wpa_channel_info ci;
  
@@ -375,7 +375,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  #ifdef CONFIG_TESTING_OPTIONS
  		if (wpa_s->oci_freq_override_saquery_req) {
  			wpa_printf(MSG_INFO,
-@@ -5467,11 +5478,8 @@ static void sme_send_sa_query_req(struct
+@@ -6659,11 +6670,8 @@ static void sme_send_sa_query_req(struct
  	}
  #endif /* CONFIG_OCV */
  
@@ -389,7 +389,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		wpa_msg(wpa_s, MSG_INFO, "SME: Failed to send SA Query "
  			"Request");
  }
-@@ -5592,19 +5600,6 @@ void sme_event_ch_switch(struct wpa_supp
+@@ -6784,19 +6792,6 @@ void sme_event_ch_switch(struct wpa_supp
  }
  
  
@@ -409,7 +409,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  static void sme_process_sa_query_request(struct wpa_supplicant *wpa_s,
  					 const u8 *sa, const u8 *data,
  					 size_t len, int link_id)
-@@ -5619,23 +5614,23 @@ static void sme_process_sa_query_request
+@@ -6811,23 +6806,23 @@ static void sme_process_sa_query_request
  	resp[0] = WLAN_ACTION_SA_QUERY;
  	resp[1] = WLAN_SA_QUERY_RESPONSE;
  	os_memcpy(resp + 2, data + 1, WLAN_SA_QUERY_TR_ID_LEN);
@@ -439,7 +439,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  #ifdef CONFIG_TESTING_OPTIONS
  		if (wpa_s->oci_freq_override_saquery_resp) {
  			wpa_printf(MSG_INFO,
-@@ -5695,10 +5690,8 @@ static void sme_process_sa_query_respons
+@@ -6887,10 +6882,8 @@ static void sme_process_sa_query_respons
  
  
  void sme_sa_query_rx(struct wpa_supplicant *wpa_s, const u8 *da, const u8 *sa,
@@ -493,7 +493,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	if (ret)
 --- a/wpa_supplicant/wnm_sta.c
 +++ b/wpa_supplicant/wnm_sta.c
-@@ -57,6 +57,7 @@ int ieee802_11_send_wnmsleep_req(struct
+@@ -98,6 +98,7 @@ int ieee802_11_send_wnmsleep_req(struct
  {
  	struct ieee80211_mgmt *mgmt;
  	int res;
@@ -501,7 +501,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	size_t len;
  	struct wnm_sleep_element *wnmsleep_ie;
  	u8 *wnmtfs_ie, *oci_ie;
-@@ -113,13 +114,17 @@ int ieee802_11_send_wnmsleep_req(struct
+@@ -154,13 +155,17 @@ int ieee802_11_send_wnmsleep_req(struct
  	if (action == WNM_SLEEP_MODE_EXIT && wpa_sm_ocv_enabled(wpa_s->wpa)) {
  		struct wpa_channel_info ci;
  
@@ -520,7 +520,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  #ifdef CONFIG_TESTING_OPTIONS
  		if (wpa_s->oci_freq_override_wnm_sleep) {
  			wpa_printf(MSG_INFO,
-@@ -186,10 +191,9 @@ int ieee802_11_send_wnmsleep_req(struct
+@@ -227,10 +232,9 @@ int ieee802_11_send_wnmsleep_req(struct
  	len = 1 + sizeof(mgmt->u.action.u.wnm_sleep_req) + wnmsleep_ie_len +
  		wnmtfs_ie_len + oci_ie_len;
  
@@ -531,10 +531,10 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 +	res = wpa_drv_send_action(wpa_s, freq, 0, wpa_s->bssid, wpa_s->own_addr,
 +				  wpa_s->bssid, &mgmt->u.action.category, len,
 +				  0);
- 	if (res < 0)
+ 	if (res < 0) {
  		wpa_printf(MSG_DEBUG, "Failed to send WNM-Sleep Request "
  			   "(action=%d, intval=%d)", action, intval);
-@@ -1058,7 +1062,7 @@ static int wnm_send_bss_transition_mgmt_
+@@ -1128,7 +1132,7 @@ static int wnm_send_bss_transition_mgmt_
  	}
  #endif /* CONFIG_MBO */
  
@@ -543,7 +543,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  				  wpa_s->bssid, wpa_s->own_addr, wpa_s->bssid,
  				  wpabuf_head_u8(buf), wpabuf_len(buf), 0);
  	if (res < 0) {
-@@ -1835,7 +1839,7 @@ int wnm_send_bss_transition_mgmt_query(s
+@@ -1924,7 +1928,7 @@ int wnm_send_bss_transition_mgmt_query(s
  		wpabuf_put(buf, ret);
  	}
  
@@ -552,7 +552,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  				  wpa_s->bssid, wpa_s->own_addr, wpa_s->bssid,
  				  wpabuf_head_u8(buf), wpabuf_len(buf), 0);
  
-@@ -1991,7 +1995,7 @@ static void ieee802_11_rx_wnm_notif_req(
+@@ -2080,7 +2084,7 @@ static void ieee802_11_rx_wnm_notif_req(
  
  static void ieee802_11_rx_wnm_coloc_intf_req(struct wpa_supplicant *wpa_s,
  					     const u8 *sa, const u8 *frm,
@@ -561,7 +561,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  {
  	u8 dialog_token, req_info, auto_report, timeout;
  
-@@ -2028,11 +2032,13 @@ static void ieee802_11_rx_wnm_coloc_intf
+@@ -2117,11 +2121,13 @@ static void ieee802_11_rx_wnm_coloc_intf
  	wpa_s->coloc_intf_dialog_token = dialog_token;
  	wpa_s->coloc_intf_auto_report = auto_report;
  	wpa_s->coloc_intf_timeout = timeout;
@@ -576,7 +576,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  {
  	const u8 *pos, *end;
  	u8 act;
-@@ -2070,7 +2076,7 @@ void ieee802_11_rx_wnm_action(struct wpa
+@@ -2159,7 +2165,7 @@ void ieee802_11_rx_wnm_action(struct wpa
  		break;
  	case WNM_COLLOCATED_INTERFERENCE_REQ:
  		ieee802_11_rx_wnm_coloc_intf_req(wpa_s, mgmt->sa, pos,
@@ -585,7 +585,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		break;
  	default:
  		wpa_printf(MSG_ERROR, "WNM: Unknown request");
-@@ -2083,11 +2089,21 @@ int wnm_send_coloc_intf_report(struct wp
+@@ -2172,11 +2178,21 @@ int wnm_send_coloc_intf_report(struct wp
  			       const struct wpabuf *elems)
  {
  	struct wpabuf *buf;
@@ -608,7 +608,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	wpa_printf(MSG_DEBUG, "WNM: Send Collocated Interference Report to "
  		   MACSTR " (dialog token %u)",
  		   MAC2STR(wpa_s->bssid), dialog_token);
-@@ -2101,8 +2117,8 @@ int wnm_send_coloc_intf_report(struct wp
+@@ -2190,8 +2206,8 @@ int wnm_send_coloc_intf_report(struct wp
  	wpabuf_put_u8(buf, dialog_token);
  	wpabuf_put_buf(buf, elems);
  
@@ -621,7 +621,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	return ret;
 --- a/wpa_supplicant/wpas_glue.c
 +++ b/wpa_supplicant/wpas_glue.c
-@@ -741,11 +741,9 @@ static int wpa_supplicant_send_ft_action
+@@ -756,11 +756,9 @@ static int wpa_supplicant_send_ft_action
  	pos += ETH_ALEN;
  	os_memcpy(pos, ies, ies_len);
  
@@ -638,7 +638,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	return ret;
 --- a/wpa_supplicant/wpa_supplicant.c
 +++ b/wpa_supplicant/wpa_supplicant.c
-@@ -591,7 +591,7 @@ static void wpas_wfa_capab_tx(void *eloo
+@@ -596,7 +596,7 @@ static void wpas_wfa_capab_tx(void *eloo
  	wpabuf_free(attr);
  
  	wpa_printf(MSG_DEBUG, "WFA: Send WFA Capabilities frame");
@@ -647,7 +647,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  				wpa_s->bssid, wpa_s->own_addr, wpa_s->bssid,
  				wpabuf_head(buf), wpabuf_len(buf), 0) < 0)
  		wpa_printf(MSG_DEBUG,
-@@ -10321,28 +10321,85 @@ wpa_drv_get_scan_results(struct wpa_supp
+@@ -11321,28 +11321,85 @@ wpa_drv_get_scan_results(struct wpa_supp
  }
  
  
@@ -743,7 +743,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
 --- a/wpa_supplicant/wpa_supplicant_i.h
 +++ b/wpa_supplicant/wpa_supplicant_i.h
-@@ -491,8 +491,8 @@ struct rrm_data {
+@@ -498,8 +498,8 @@ struct rrm_data {
  	/* destination address of the current radio measurement request */
  	u8 dst_addr[ETH_ALEN];
  
@@ -754,7 +754,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  };
  
  enum wpa_supplicant_test_failure {
-@@ -1416,6 +1416,7 @@ struct wpa_supplicant {
+@@ -1461,6 +1461,7 @@ struct wpa_supplicant {
  	u8 coloc_intf_dialog_token;
  	u8 coloc_intf_auto_report;
  	u8 coloc_intf_timeout;
@@ -762,7 +762,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  #ifdef CONFIG_MBO
  	unsigned int wnm_mbo_trans_reason_present:1;
  	u8 wnm_mbo_transition_reason;
-@@ -1670,7 +1671,7 @@ struct wpa_supplicant {
+@@ -1717,7 +1718,7 @@ struct wpa_supplicant {
  	struct dl_list active_scs_ids;
  	bool ongoing_scs_req;
  	u8 dscp_req_dialog_token;
@@ -771,7 +771,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	u8 dscp_query_dialog_token;
  	unsigned int enable_dscp_policy_capa:1;
  	unsigned int connection_dscp:1;
-@@ -1958,7 +1959,7 @@ int wpas_rrm_send_neighbor_rep_request(s
+@@ -2013,7 +2014,7 @@ int wpas_rrm_send_neighbor_rep_request(s
  void wpas_rrm_handle_radio_measurement_request(struct wpa_supplicant *wpa_s,
  					       const u8 *src, const u8 *dst,
  					       const u8 *frame, size_t len,
@@ -780,7 +780,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  void wpas_rrm_handle_link_measurement_request(struct wpa_supplicant *wpa_s,
  					      const u8 *src,
  					      const u8 *frame, size_t len,
-@@ -2187,7 +2188,7 @@ void wpas_scs_deinit(struct wpa_supplica
+@@ -2244,7 +2245,7 @@ void wpas_scs_deinit(struct wpa_supplica
  void wpas_handle_qos_mgmt_recv_action(struct wpa_supplicant *wpa_s,
  				      const u8 *dst, const u8 *src,
  				      const u8 *buf, size_t len,
@@ -789,7 +789,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  void wpas_dscp_deinit(struct wpa_supplicant *wpa_s);
  int wpas_send_dscp_response(struct wpa_supplicant *wpa_s,
  			    struct dscp_resp_data *resp_data);
-@@ -2223,7 +2224,12 @@ bool wpas_is_6ghz_supported(struct wpa_s
+@@ -2281,7 +2282,12 @@ bool wpas_is_6ghz_supported(struct wpa_s
  
  bool wpa_is_non_eht_scs_traffic_desc_supported(struct wpa_bss *bss);
  bool wpas_ap_link_address(struct wpa_supplicant *wpa_s, const u8 *addr);
@@ -839,7 +839,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  void sme_deinit(struct wpa_supplicant *wpa_s);
 --- a/wpa_supplicant/ctrl_iface.c
 +++ b/wpa_supplicant/ctrl_iface.c
-@@ -9820,6 +9820,7 @@ static int wpas_ctrl_iface_mgmt_rx_proce
+@@ -9976,6 +9976,7 @@ static int wpas_ctrl_iface_mgmt_rx_proce
  	}
  
  	os_memset(&event, 0, sizeof(event));

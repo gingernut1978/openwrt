@@ -31,7 +31,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/hostapd/Makefile
 +++ b/hostapd/Makefile
-@@ -1401,6 +1401,7 @@ endif
+@@ -1430,6 +1430,7 @@ endif
  ifdef CONFIG_ROBUST_AV
  CFLAGS += -DCONFIG_ROBUST_AV
  OBJS += ../src/ap/robust_av.o
@@ -41,7 +41,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  OBJS += ../src/drivers/driver_common.o
 --- a/src/ap/Makefile
 +++ b/src/ap/Makefile
-@@ -49,6 +49,7 @@ LIB_OBJS= \
+@@ -51,6 +51,7 @@ LIB_OBJS= \
  	pmksa_cache_auth.o \
  	preauth_auth.o \
  	robust_av.o \
@@ -59,7 +59,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  #ifdef CONFIG_APUP
  #	include "apup.h"
-@@ -8627,6 +8628,12 @@ static int handle_action(struct hostapd_
+@@ -10160,6 +10161,12 @@ static int handle_action(struct hostapd_
  		ieee802_11_rx_protected_eht_action(hapd, mgmt, len);
  		return 1;
  #endif /* CONFIG_IEEE80211BE */
@@ -358,17 +358,17 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 +#endif /* SCS_H */
 --- a/src/ap/sta_info.h
 +++ b/src/ap/sta_info.h
-@@ -388,6 +388,7 @@ struct sta_info {
+@@ -384,6 +384,7 @@ struct sta_info {
  	bool dscp_reset;
  	u8 unsolicited_dialog_token;
  	struct dscp_policy_state dscp_state;
 +	u8 scs_active[32]; /* bitmap of the SCSIDs with an active stream */
  #endif /* CONFIG_ROBUST_AV */
- };
  
+ 	/* (Re)Association Response frame with status success whose TX status
 --- a/src/drivers/driver_nl80211.c
 +++ b/src/drivers/driver_nl80211.c
-@@ -3208,6 +3208,11 @@ static int nl80211_action_subscribe_ap(s
+@@ -3209,6 +3209,11 @@ static int nl80211_action_subscribe_ap(s
  	if (nl80211_register_action_frame(bss, (u8 *) "\x25\x0b", 2) < 0)
  		ret = -1;
  #endif /* CONFIG_IEEE80211BE */
@@ -382,7 +382,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		ret = -1;
 --- a/wpa_supplicant/Makefile
 +++ b/wpa_supplicant/Makefile
-@@ -1102,6 +1102,7 @@ endif
+@@ -1128,6 +1128,7 @@ endif
  ifdef CONFIG_ROBUST_AV
  CFLAGS += -DCONFIG_ROBUST_AV
  OBJS += ../src/ap/robust_av.o
@@ -392,7 +392,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  CFLAGS += -DEAP_SERVER -DEAP_SERVER_IDENTITY
 --- a/src/ap/ieee802_11_eht.c
 +++ b/src/ap/ieee802_11_eht.c
-@@ -1668,6 +1668,11 @@ struct sta_info * hostapd_ml_move_assoc_
+@@ -1642,6 +1642,11 @@ struct sta_info * hostapd_ml_move_assoc_
  
  	wpa_reset_assoc_sm_info(assoc_sta->wpa_sm, (*assoc_hapd)->wpa_auth,
  				link_id);

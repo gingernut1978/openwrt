@@ -134,7 +134,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	hostapd_mld_beacons_update(hapd);
  
  	hostapd_ucode_bss_cb(hapd, "bss_link_removed");
-@@ -4318,6 +4362,8 @@ void hostapd_interface_free(struct hosta
+@@ -4329,6 +4373,8 @@ void hostapd_interface_free(struct hosta
  		if (iface->bss[j])
  			hostapd_mld_ref_dec(iface->bss[j]);
  #endif /* CONFIG_IEEE80211BE */
@@ -145,8 +145,8 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		os_free(iface->bss[j]);
 --- a/src/ap/ap_drv_ops.c
 +++ b/src/ap/ap_drv_ops.c
-@@ -703,7 +703,7 @@ int hostapd_set_freq(struct hostapd_data
- 				    NULL, hostapd_get_punct_bitmap(hapd)))
+@@ -742,7 +742,7 @@ int hostapd_set_freq(struct hostapd_data
+ 	if (hostapd_set_freq_params(&data, &info))
  		return -1;
  
 -	if (hapd->driver == NULL)
@@ -154,9 +154,9 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		return 0;
  	if (hapd->driver->set_freq == NULL)
  		return 0;
-@@ -1129,7 +1129,8 @@ int hostapd_start_dfs_cac(struct hostapd
- 	int res;
- 	struct hostapd_hw_modes *cmode = iface->current_mode;
+@@ -1185,7 +1185,8 @@ int hostapd_start_dfs_cac(struct hostapd
+ 		.eht.punct_bitmap = hostapd_get_punct_bitmap(hapd),
+ 	};
  
 -	if (!hapd->driver || !hapd->driver->start_dfs_cac || !cmode)
 +	if (!hapd->driver || !hapd->driver->start_dfs_cac || !hapd->drv_priv ||

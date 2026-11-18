@@ -37,25 +37,25 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/src/ap/ieee802_11.c
 +++ b/src/ap/ieee802_11.c
-@@ -9164,6 +9164,7 @@ skip_update:
- 			   MAC2STR(sta->addr), sta->aid);
+@@ -10786,6 +10786,7 @@ skip_update:
+ 			   MAC2STR(sta->addr), ifname_id);
  		ret = hostapd_set_wds_sta(hapd, ifname_wds, sta->addr,
- 					  sta->aid, 1);
+ 					  ifname_id, 1);
 +		sta->wds_vlan = 1;
  		if (!ret)
  			hostapd_set_wds_encryption(hapd, sta, ifname_wds);
  	}
-@@ -9534,6 +9535,7 @@ void ieee802_11_rx_from_unknown(struct h
+@@ -11191,6 +11192,7 @@ void ieee802_11_rx_from_unknown(struct h
  			sta->flags |= WLAN_STA_WDS;
  			ret = hostapd_set_wds_sta(hapd, ifname_wds,
- 						  sta->addr, sta->aid, 1);
+ 						  sta->addr, ifname_id, 1);
 +			sta->wds_vlan = 1;
  			if (!ret)
  				hostapd_set_wds_encryption(hapd, sta,
  							   ifname_wds);
 --- a/src/ap/sta_info.c
 +++ b/src/ap/sta_info.c
-@@ -402,11 +402,7 @@ void ap_free_sta(struct hostapd_data *ha
+@@ -403,15 +403,13 @@ void ap_free_sta(struct hostapd_data *ha
  	ap_sta_set_authorized(hapd, sta, 0);
  	hostapd_set_sta_flags(hapd, sta);
  
@@ -65,20 +65,52 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 -	     hapd->conf->wds_sta &&
 -	     !(sta->flags & WLAN_STA_WPS))) {
 +	if (sta->wds_vlan) {
+ 		int ifname_id = sta->aid;
+ 
  #ifdef CONFIG_IEEE80211BE
+-		if (hapd->conf->mld_ap && (sta->flags & WLAN_STA_WDS))
++		/* The entry that owns the AP_VLAN need not hold WLAN_STA_WDS, see
++		 * the handover to a partner link station below */
++		if (hapd->conf->mld_ap && sta->wds_ifname_id > 0)
+ 			ifname_id = sta->wds_ifname_id;
+ 
  		if (ap_sta_is_mld(hapd, sta)) {
- 			struct hostapd_data *phapd;
-@@ -418,6 +414,7 @@ void ap_free_sta(struct hostapd_data *ha
+@@ -424,6 +422,10 @@ void ap_free_sta(struct hostapd_data *ha
  
  				psta = ap_get_sta(phapd, sta->addr);
  				if (psta) {
 +					psta->wds_vlan = 1;
++					if (!psta->wds_ifname_id)
++						psta->wds_ifname_id =
++							sta->wds_ifname_id;
  					remove = false;
  					break;
  				}
+@@ -456,6 +458,21 @@ void ap_free_sta(struct hostapd_data *ha
+ #ifdef CONFIG_IEEE80211BE
+ 	if (sta->wds_ifname_id > 0 && remove) {
+ 		struct hostapd_mld *mld = hapd->mld;
++		struct hostapd_data *phapd;
++		struct sta_info *psta;
++
++		/* A partner link station can use the ifname_id without owning
++		 * the AP_VLAN */
++		if (ap_sta_is_mld(hapd, sta)) {
++			for_each_mld_link(phapd, hapd) {
++				if (phapd == hapd)
++					continue;
++				psta = ap_get_sta(phapd, sta->addr);
++				if (psta &&
++				    psta->wds_ifname_id == sta->wds_ifname_id)
++					mld = NULL;
++			}
++		}
+ 
+ 		if (mld)
+ 			mld->wds_ifname_id[(sta->wds_ifname_id - 1) / 32] &=
 --- a/src/ap/sta_info.h
 +++ b/src/ap/sta_info.h
-@@ -166,6 +166,7 @@ struct sta_info {
+@@ -177,6 +177,7 @@ struct sta_info {
  	unsigned int ecsa_supported:1;
  	unsigned int added_unassoc:1;
  	unsigned int pending_wds_enable:1;

@@ -23,7 +23,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/src/ap/wpa_auth.c
 +++ b/src/ap/wpa_auth.c
-@@ -7132,6 +7132,31 @@ void wpa_auth_pmksa_set_to_sm(struct rsn
+@@ -7217,6 +7217,31 @@ void wpa_auth_sm_set_pmksa_epp(struct wp
  }
  
  
@@ -55,7 +55,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  /*
   * Remove and free the group from wpa_authenticator. This is triggered by a
   * callback to make sure nobody is currently iterating the group list while it
-@@ -7145,6 +7170,10 @@ static void wpa_group_free(struct wpa_au
+@@ -7230,6 +7255,10 @@ static void wpa_group_free(struct wpa_au
  	wpa_printf(MSG_DEBUG, "WPA: Remove group state machine for VLAN-ID %d",
  		   group->vlan_id);
  

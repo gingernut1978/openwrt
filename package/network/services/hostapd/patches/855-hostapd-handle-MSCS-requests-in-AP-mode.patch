@@ -32,17 +32,17 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/src/ap/ieee802_11.c
 +++ b/src/ap/ieee802_11.c
-@@ -6972,6 +6972,9 @@ static u16 send_assoc_resp(struct hostap
+@@ -8455,6 +8455,9 @@ static u16 send_assoc_resp(struct hostap
  	u16 res = WLAN_STATUS_SUCCESS;
  
- 	buflen = sizeof(struct ieee80211_mgmt) + 1024;
+ 	buflen = sizeof(struct ieee80211_mgmt) + 1224;
 +#ifdef CONFIG_ROBUST_AV
 +	buflen += 14; /* MSCS Descriptor element with an MSCS Status */
 +#endif /* CONFIG_ROBUST_AV */
  #ifdef CONFIG_FILS
  	if (sta && sta->fils_hlp_resp)
  		buflen += wpabuf_len(sta->fils_hlp_resp);
-@@ -7149,6 +7152,11 @@ static u16 send_assoc_resp(struct hostap
+@@ -8649,6 +8652,11 @@ static u16 send_assoc_resp(struct hostap
  rsnxe_done:
  #endif /* CONFIG_TESTING_OPTIONS */
  
@@ -251,17 +251,17 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  #endif /* SCS_H */
 --- a/src/ap/sta_info.h
 +++ b/src/ap/sta_info.h
-@@ -389,6 +389,7 @@ struct sta_info {
+@@ -385,6 +385,7 @@ struct sta_info {
  	u8 unsolicited_dialog_token;
  	struct dscp_policy_state dscp_state;
  	u8 scs_active[32]; /* bitmap of the SCSIDs with an active stream */
 +	bool mscs_active;
  #endif /* CONFIG_ROBUST_AV */
- };
  
+ 	/* (Re)Association Response frame with status success whose TX status
 --- a/src/drivers/driver_nl80211.c
 +++ b/src/drivers/driver_nl80211.c
-@@ -3212,6 +3212,9 @@ static int nl80211_action_subscribe_ap(s
+@@ -3213,6 +3213,9 @@ static int nl80211_action_subscribe_ap(s
  	/* Robust AV Streaming - SCS Request */
  	if (nl80211_register_action_frame(bss, (u8 *) "\x13\x00", 2) < 0)
  		ret = -1;
@@ -273,7 +273,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	if (nl80211_register_action_frame(bss, (u8 *) "\x7e", 1) < 0)
 --- a/src/ap/ieee802_11_eht.c
 +++ b/src/ap/ieee802_11_eht.c
-@@ -1672,6 +1672,8 @@ struct sta_info * hostapd_ml_move_assoc_
+@@ -1646,6 +1646,8 @@ struct sta_info * hostapd_ml_move_assoc_
  	os_memcpy(assoc_sta->scs_active, sta->scs_active,
  		  sizeof(sta->scs_active));
  	os_memset(sta->scs_active, 0, sizeof(sta->scs_active));

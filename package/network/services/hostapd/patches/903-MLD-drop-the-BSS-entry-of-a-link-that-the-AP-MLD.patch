@@ -133,7 +133,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  void wpa_bss_update_end(struct wpa_supplicant *wpa_s, struct scan_info *info,
 --- a/wpa_supplicant/ctrl_iface.c
 +++ b/wpa_supplicant/ctrl_iface.c
-@@ -12767,7 +12767,11 @@ wpa_supplicant_ctrl_iface_setup_link_rec
+@@ -12944,7 +12944,11 @@ wpa_supplicant_ctrl_iface_setup_link_rec
  		info.add_link_ies_len = len;
  	}
  
@@ -148,7 +148,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
 --- a/wpa_supplicant/events.c
 +++ b/wpa_supplicant/events.c
-@@ -352,6 +352,7 @@ void wpas_reset_mlo_info(struct wpa_supp
+@@ -353,6 +353,7 @@ void wpas_reset_mlo_info(struct wpa_supp
  		return;
  
  	wpa_s->valid_links = 0;
@@ -156,7 +156,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	wpa_s->mlo_assoc_link_id = 0;
  	os_memset(wpa_s->ap_mld_addr, 0, ETH_ALEN);
  	for (i = 0; i < MAX_NUM_MLD_LINKS; i++)
-@@ -6754,8 +6755,24 @@ static void wpas_setup_link_reconfig(str
+@@ -7055,8 +7056,24 @@ static void wpas_setup_link_reconfig(str
  }
  
  
@@ -181,7 +181,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	u8 bssid[ETH_ALEN];
  
  	if (wpa_drv_get_bssid(wpa_s, bssid) < 0) {
-@@ -6791,6 +6808,11 @@ static void wpas_link_reconfig(struct wp
+@@ -7092,6 +7109,11 @@ static void wpas_link_reconfig(struct wp
  	    wpa_s->links[wpa_s->mlo_assoc_link_id].freq)
  		wpa_s->assoc_freq = wpa_s->links[wpa_s->mlo_assoc_link_id].freq;
  
@@ -195,7 +195,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  }
 --- a/wpa_supplicant/wpa_supplicant_i.h
 +++ b/wpa_supplicant/wpa_supplicant_i.h
-@@ -818,6 +818,11 @@ struct wpa_supplicant {
+@@ -836,6 +836,11 @@ struct wpa_supplicant {
  		unsigned int max_nss_tx:4;
  		enum chan_width channel_bandwidth;
  	} links[MAX_NUM_MLD_LINKS];

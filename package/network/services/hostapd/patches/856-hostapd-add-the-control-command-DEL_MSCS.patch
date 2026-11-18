@@ -52,7 +52,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  #endif /* CONFIG_ROBUST_AV */
  
  
-@@ -4865,6 +4878,9 @@ static int hostapd_ctrl_iface_receive_pr
+@@ -4870,6 +4883,9 @@ static int hostapd_ctrl_iface_receive_pr
  	} else if (os_strncmp(buf, "SEND_UNSOLICITED_DSCP_REQ ", 26) == 0) {
  		if (hostapd_ctrl_send_unsolicited_dscp_req(hapd, buf + 26))
  			reply_len = -1;
@@ -60,8 +60,8 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 +		if (hostapd_ctrl_iface_del_mscs(hapd, buf + 9))
 +			reply_len = -1;
  #endif /* CONFIG_ROBUST_AV */
- 	} else {
- 		os_memcpy(reply, "UNKNOWN COMMAND\n", 16);
+ #ifdef CONFIG_AFC
+ 	}  else if (os_strncmp(buf, "AFC_GET_REQUEST", 15) == 0) {
 --- a/hostapd/hostapd_cli.c
 +++ b/hostapd/hostapd_cli.c
 @@ -947,6 +947,13 @@ static int hostapd_cli_cmd_send_unsolici
@@ -78,15 +78,15 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  #endif /* CONFIG_ROBUST_AV */
  
  
-@@ -2038,6 +2045,8 @@ static const struct hostapd_cli_cmd host
+@@ -2030,6 +2037,8 @@ static const struct hostapd_cli_cmd host
  	{"send_unsolicited_dscp_req", hostapd_cli_cmd_send_unsolicited_dscp_req,
  	 NULL,
  	 "<addr>, [reset=], [policy_id_list=], Send unsolicited DSCP request"},
 +	{ "del_mscs", hostapd_cli_cmd_del_mscs, NULL,
 +	  "<addr> = Remove the MSCS of a station" },
  #endif /* CONFIG_ROBUST_AV */
- 	{ NULL, NULL, NULL, NULL }
- };
+ #ifdef CONFIG_AFC
+ 	{ "afc_get_request", hostapd_cli_cmd_afc_get_request, NULL,
 --- a/src/ap/scs.c
 +++ b/src/ap/scs.c
 @@ -290,6 +290,34 @@ out:

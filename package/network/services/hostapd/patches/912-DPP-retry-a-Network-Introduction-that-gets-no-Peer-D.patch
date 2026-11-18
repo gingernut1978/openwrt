@@ -22,7 +22,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/wpa_supplicant/dpp_supplicant.c
 +++ b/wpa_supplicant/dpp_supplicant.c
-@@ -69,6 +69,11 @@ static const u8 broadcast[ETH_ALEN] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+@@ -69,6 +69,11 @@ static const u8 broadcast[ETH_ALEN] = {
   * a single transaction in progress at any point in time. */
  static const u8 TRANSACTION_ID = 1;
  
@@ -34,7 +34,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  /**
   * wpas_dpp_qr_code - Parse and add DPP bootstrapping info from a QR Code
-@@ -2798,6 +2803,50 @@ static void wpas_dpp_pmksa_cache_add(struct wpa_supplicant *wpa_s,
+@@ -2808,6 +2813,50 @@ static void wpas_dpp_pmksa_cache_add(str
  }
  
  
@@ -85,7 +85,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  static void wpas_dpp_rx_peer_disc_resp(struct wpa_supplicant *wpa_s,
  				       const u8 *src,
  				       const u8 *buf, size_t len)
-@@ -2858,13 +2907,14 @@ static void wpas_dpp_rx_peer_disc_resp(struct wpa_supplicant *wpa_s,
+@@ -2868,13 +2917,14 @@ static void wpas_dpp_rx_peer_disc_resp(s
  			" fail=transaction_id_mismatch", MAC2STR(src));
  		goto fail;
  	}
@@ -101,7 +101,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	}
  	if (status[0] != DPP_STATUS_OK) {
  		wpa_printf(MSG_DEBUG,
-@@ -2875,7 +2925,7 @@ static void wpas_dpp_rx_peer_disc_resp(struct wpa_supplicant *wpa_s,
+@@ -2885,7 +2935,7 @@ static void wpas_dpp_rx_peer_disc_resp(s
  #ifdef CONFIG_DPP2
  		wpas_dpp_send_conn_status_result(wpa_s, status[0]);
  #endif /* CONFIG_DPP2 */
@@ -110,7 +110,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	}
  
  	connector = dpp_get_attr(buf, len, DPP_ATTR_CONNECTOR, &connector_len);
-@@ -2884,7 +2934,7 @@ static void wpas_dpp_rx_peer_disc_resp(struct wpa_supplicant *wpa_s,
+@@ -2894,7 +2944,7 @@ static void wpas_dpp_rx_peer_disc_resp(s
  			   "DPP: Peer did not include its Connector");
  		wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_INTRO "peer=" MACSTR
  			" fail=missing_connector", MAC2STR(src));
@@ -119,7 +119,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	}
  
  	res = dpp_peer_intro(&intro, ssid->dpp_connector,
-@@ -2901,12 +2951,12 @@ static void wpas_dpp_rx_peer_disc_resp(struct wpa_supplicant *wpa_s,
+@@ -2911,12 +2961,12 @@ static void wpas_dpp_rx_peer_disc_resp(s
  #ifdef CONFIG_DPP2
  		wpas_dpp_send_conn_status_result(wpa_s, res);
  #endif /* CONFIG_DPP2 */
@@ -134,7 +134,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	os_memcpy(entry->aa, src, ETH_ALEN);
  	os_memcpy(entry->spa, wpa_s->own_addr, ETH_ALEN);
  	os_memcpy(entry->pmkid, intro.pmkid, PMKID_LEN);
-@@ -2925,7 +2975,7 @@ static void wpas_dpp_rx_peer_disc_resp(struct wpa_supplicant *wpa_s,
+@@ -2935,7 +2985,7 @@ static void wpas_dpp_rx_peer_disc_resp(s
  			   "DPP: Protocol version mismatch (Connector: %d Attribute: %d",
  			   intro.peer_version, peer_version);
  		wpas_dpp_send_conn_status_result(wpa_s, DPP_STATUS_NO_MATCH);
@@ -143,7 +143,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	}
  #endif /* CONFIG_DPP3 */
  	entry->dpp_pfs = peer_version >= 2;
-@@ -2951,6 +3001,9 @@ static void wpas_dpp_rx_peer_disc_resp(struct wpa_supplicant *wpa_s,
+@@ -2961,6 +3011,9 @@ static void wpas_dpp_rx_peer_disc_resp(s
  		wpa_supplicant_cancel_sched_scan(wpa_s);
  		wpa_supplicant_req_scan(wpa_s, 0, 0);
  	}
@@ -153,7 +153,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  fail:
  	dpp_peer_intro_deinit(&intro);
  }
-@@ -4020,6 +4073,7 @@ wpas_dpp_rx_priv_peer_intro_notify(struct wpa_supplicant *wpa_s,
+@@ -4030,6 +4083,7 @@ wpas_dpp_rx_priv_peer_intro_notify(struc
  			" fail=transaction_id_mismatch", MAC2STR(src));
  		goto fail;
  	}
@@ -161,7 +161,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  	connector = dpp_get_attr(buf, len, DPP_ATTR_CONNECTOR, &connector_len);
  	if (!connector) {
-@@ -4027,7 +4081,7 @@ wpas_dpp_rx_priv_peer_intro_notify(struct wpa_supplicant *wpa_s,
+@@ -4037,7 +4091,7 @@ wpas_dpp_rx_priv_peer_intro_notify(struc
  			   "DPP: Peer did not include its Connector");
  		wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_INTRO "peer=" MACSTR
  			" fail=missing_connector", MAC2STR(src));
@@ -170,7 +170,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	}
  
  	version = dpp_get_attr(buf, len, DPP_ATTR_PROTOCOL_VERSION,
-@@ -4037,7 +4091,7 @@ wpas_dpp_rx_priv_peer_intro_notify(struct wpa_supplicant *wpa_s,
+@@ -4047,7 +4101,7 @@ wpas_dpp_rx_priv_peer_intro_notify(struc
  			   "DPP: Peer did not include valid Version");
  		wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_INTRO "peer=" MACSTR
  			" fail=missing_version", MAC2STR(src));
@@ -179,7 +179,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	}
  
  	res = dpp_peer_intro(&intro, ssid->dpp_connector,
-@@ -4052,7 +4106,7 @@ wpas_dpp_rx_priv_peer_intro_notify(struct wpa_supplicant *wpa_s,
+@@ -4062,7 +4116,7 @@ wpas_dpp_rx_priv_peer_intro_notify(struc
  		wpa_msg(wpa_s, MSG_INFO, DPP_EVENT_INTRO "peer=" MACSTR
  			" fail=peer_connector_validation_failed", MAC2STR(src));
  		wpas_dpp_send_conn_status_result(wpa_s, res);
@@ -188,7 +188,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	}
  
  	peer_version = version[0];
-@@ -4062,13 +4116,13 @@ wpas_dpp_rx_priv_peer_intro_notify(struct wpa_supplicant *wpa_s,
+@@ -4072,13 +4126,13 @@ wpas_dpp_rx_priv_peer_intro_notify(struc
  			   "DPP: Protocol version mismatch (Connector: %d Attribute: %d",
  			   intro.peer_version, peer_version);
  		wpas_dpp_send_conn_status_result(wpa_s, DPP_STATUS_NO_MATCH);
@@ -204,7 +204,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	entry->dpp_pfs = peer_version >= 2;
  	os_memcpy(entry->aa, src, ETH_ALEN);
  	os_memcpy(entry->spa, wpa_s->own_addr, ETH_ALEN);
-@@ -4086,7 +4140,7 @@ wpas_dpp_rx_priv_peer_intro_notify(struct wpa_supplicant *wpa_s,
+@@ -4096,7 +4150,7 @@ wpas_dpp_rx_priv_peer_intro_notify(struc
  	if (wpas_dpp_send_private_peer_intro_update(wpa_s, &intro, ssid, src,
  						    freq) < 0) {
  		os_free(entry);
@@ -213,7 +213,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	}
  
  	os_get_reltime(&rnow);
-@@ -4097,7 +4151,9 @@ wpas_dpp_rx_priv_peer_intro_notify(struct wpa_supplicant *wpa_s,
+@@ -4107,7 +4161,9 @@ wpas_dpp_rx_priv_peer_intro_notify(struc
  
  	/* Association will be initiated from TX status handler for the Private
  	 * Peer Intro Update: wpas_dpp_tx_priv_intro_status() */
@@ -224,7 +224,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  fail:
  	dpp_peer_intro_deinit(&intro);
  }
-@@ -4548,7 +4604,6 @@ static int wpas_dpp_start_private_peer_intro(struct wpa_supplicant *wpa_s,
+@@ -4558,7 +4614,6 @@ static int wpas_dpp_start_private_peer_i
  
  	wpa_hexdump_buf(MSG_MSGDUMP, "DPP: Private Peer Intro Query", msg);
  
@@ -232,7 +232,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	wait_time = wpa_s->max_remain_on_chan;
  	if (wait_time > 2000)
  		wait_time = 2000;
-@@ -4562,8 +4617,7 @@ static int wpas_dpp_start_private_peer_intro(struct wpa_supplicant *wpa_s,
+@@ -4572,8 +4627,7 @@ static int wpas_dpp_start_private_peer_i
  
  	/* Request this connection attempt to terminate - new one will be
  	 * started when network introduction protocol completes */
@@ -242,7 +242,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	return 1;
  }
  #endif /* CONFIG_DPP3 */
-@@ -4746,7 +4800,6 @@ skip_connector:
+@@ -4756,7 +4810,6 @@ skip_connector:
  skip_proto_ver:
  #endif /* CONFIG_TESTING_OPTIONS */
  
@@ -250,7 +250,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	wait_time = wpa_s->max_remain_on_chan;
  	if (wait_time > 2000)
  		wait_time = 2000;
-@@ -4760,8 +4813,7 @@ skip_proto_ver:
+@@ -4770,8 +4823,7 @@ skip_proto_ver:
  
  	/* Request this connection attempt to terminate - new one will be
  	 * started when network introduction protocol completes */
@@ -260,7 +260,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	return 1;
  }
  
-@@ -4960,6 +5012,7 @@ void wpas_dpp_deinit(struct wpa_supplicant *wpa_s)
+@@ -4970,6 +5022,7 @@ void wpas_dpp_deinit(struct wpa_supplica
  	wpa_s->dpp_groups_override = NULL;
  	wpa_s->dpp_ignore_netaccesskey_mismatch = 0;
  #endif /* CONFIG_TESTING_OPTIONS */

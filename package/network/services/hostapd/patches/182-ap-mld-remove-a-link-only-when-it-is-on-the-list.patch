@@ -19,7 +19,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 
 --- a/src/ap/hostapd.c
 +++ b/src/ap/hostapd.c
-@@ -5572,6 +5572,11 @@ int hostapd_mld_remove_link(struct hosta
+@@ -5597,6 +5597,11 @@ int hostapd_mld_remove_link(struct hosta
  	if (!mld)
  		return -1;
  

@@ -30,7 +30,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	 * This pointer can be used to delete temporary networks when a wpa_cred
 --- a/wpa_supplicant/wpa_supplicant.c
 +++ b/wpa_supplicant/wpa_supplicant.c
-@@ -9684,8 +9684,12 @@ void wpas_auth_failed(struct wpa_supplic
+@@ -10683,8 +10683,12 @@ void wpas_auth_failed(struct wpa_supplic
  		ssid->id, wpa_ssid_txt(ssid->ssid, ssid->ssid_len),
  		ssid->auth_failures, dur, reason);
  
@@ -44,7 +44,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  }
  
  
-@@ -9708,7 +9712,10 @@ void wpas_clear_temp_disabled(struct wpa
+@@ -10707,7 +10711,10 @@ void wpas_clear_temp_disabled(struct wpa
  		wpa_printf(MSG_DEBUG, "Mark BSSID " MACSTR
  			   " ignored to allow a lower priority BSS, if any, to be tried next",
  			   MAC2STR(ssid->disabled_due_to));
@@ -58,7 +58,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  }
 --- a/wpa_supplicant/events.c
 +++ b/wpa_supplicant/events.c
-@@ -5721,7 +5721,10 @@ static void wpas_event_disconnect(struct
+@@ -5923,7 +5923,10 @@ static void wpas_event_disconnect(struct
  		(wpa_s->key_mgmt & WPA_KEY_MGMT_IEEE8021X_NO_WPA)) &&
  	       eapol_sm_failed(wpa_s->eapol))) &&
  	     !wpa_s->eap_expected_failure))

@@ -50,7 +50,7 @@ Signed-off-by: Christopher Griffin <christophergriffin05@gmail.com>
  #endif /* CONFIG_IEEE80211R_AP */
  	os_free(sm->last_rx_eapol_key);
  	os_free(sm->wpa_ie);
-@@ -2481,6 +2482,14 @@ int wpa_auth_sm_event(struct wpa_state_m
+@@ -2484,6 +2485,14 @@ int wpa_auth_sm_event(struct wpa_state_m
  	wpa_auth_vlogger(sm->wpa_auth, wpa_auth_get_spa(sm), LOGGER_DEBUG,
  			 "event %d notification", event);
  
@@ -67,7 +67,7 @@ Signed-off-by: Christopher Griffin <christophergriffin05@gmail.com>
  #ifdef CONFIG_MESH
 --- a/src/ap/wpa_auth_ft.c
 +++ b/src/ap/wpa_auth_ft.c
-@@ -3424,6 +3424,29 @@ out:
+@@ -3426,6 +3426,29 @@ out:
  }
  
  
@@ -97,7 +97,7 @@ Signed-off-by: Christopher Griffin <christophergriffin05@gmail.com>
  void wpa_ft_process_auth(struct wpa_state_machine *sm,
  			 u16 auth_transaction, const u8 *ies, size_t ies_len,
  			 void (*cb)(void *ctx, const u8 *dst,
-@@ -3450,6 +3473,26 @@ void wpa_ft_process_auth(struct wpa_stat
+@@ -3452,6 +3475,26 @@ void wpa_ft_process_auth(struct wpa_stat
  	sm->ft_pending_cb_ctx = ctx;
  	sm->ft_pending_auth_transaction = auth_transaction;
  	sm->ft_pending_pull_left_retries = sm->wpa_auth->conf.rkh_pull_retries;
@@ -124,7 +124,7 @@ Signed-off-by: Christopher Griffin <christophergriffin05@gmail.com>
  	res = wpa_ft_process_auth_req(sm, ies, ies_len, &resp_ies,
  				      &resp_ies_len);
  	if (res < 0) {
-@@ -3457,6 +3500,7 @@ void wpa_ft_process_auth(struct wpa_stat
+@@ -3459,6 +3502,7 @@ void wpa_ft_process_auth(struct wpa_stat
  		return;
  	}
  	status = res;
@@ -132,7 +132,7 @@ Signed-off-by: Christopher Griffin <christophergriffin05@gmail.com>
  
  	wpa_printf(MSG_DEBUG, "FT: FT authentication response: dst=" MACSTR
  		   " auth_transaction=%d status=%u (%s)",
-@@ -4315,9 +4359,12 @@ static void ft_finish_pull(struct wpa_st
+@@ -4317,9 +4361,12 @@ static void ft_finish_pull(struct wpa_st
  			   "FT: Callback postponed until response is available");
  		return;
  	}
@@ -148,7 +148,7 @@ Signed-off-by: Christopher Griffin <christophergriffin05@gmail.com>
  
 --- a/src/ap/wpa_auth_i.h
 +++ b/src/ap/wpa_auth_i.h
-@@ -148,6 +148,8 @@ struct wpa_state_machine {
+@@ -149,6 +149,8 @@ struct wpa_state_machine {
  			      const u8 *ies, size_t ies_len);
  	void *ft_pending_cb_ctx;
  	struct wpabuf *ft_pending_req_ies;
@@ -157,7 +157,7 @@ Signed-off-by: Christopher Griffin <christophergriffin05@gmail.com>
  	u8 ft_pending_pull_nonce[FT_RRB_NONCE_LEN];
  	u8 ft_pending_auth_transaction;
  	u8 ft_pending_current_ap[ETH_ALEN];
-@@ -353,6 +355,7 @@ void wpa_auth_ft_store_keys(struct wpa_s
+@@ -356,6 +358,7 @@ void wpa_auth_ft_store_keys(struct wpa_s
  struct wpa_ft_pmk_cache * wpa_ft_pmk_cache_init(void);
  void wpa_ft_pmk_cache_deinit(struct wpa_ft_pmk_cache *cache);
  void wpa_ft_install_ptk(struct wpa_state_machine *sm, int retry);

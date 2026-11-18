@@ -40,7 +40,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/src/ap/ieee802_11.c
 +++ b/src/ap/ieee802_11.c
-@@ -4257,6 +4257,37 @@ static const u8 * auth_peer_link_addr(st
+@@ -5558,6 +5558,37 @@ static const u8 * auth_peer_link_addr(st
  #endif /* CONFIG_IEEE80211BE */
  
  
@@ -78,7 +78,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  static void handle_auth(struct hostapd_data *hapd,
  			const struct ieee80211_mgmt *mgmt, size_t len,
  			int rssi, int from_queue)
-@@ -4651,6 +4682,9 @@ static void handle_auth(struct hostapd_d
+@@ -5955,6 +5986,9 @@ static void handle_auth(struct hostapd_d
  
  	sta->last_seq_ctrl = seq_ctrl;
  	sta->last_subtype = WLAN_FC_STYPE_AUTH;
@@ -88,7 +88,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  #ifdef CONFIG_MBO
  	sta->auth_rssi = rssi;
  #endif /* CONFIG_MBO */
-@@ -7348,6 +7382,7 @@ void fils_hlp_finish_assoc(struct hostap
+@@ -8873,6 +8907,7 @@ void fils_hlp_finish_assoc(struct hostap
  				    sta->fils_pending_assoc_is_reassoc,
  				    sta->fils_pending_assoc_req,
  				    sta->fils_pending_assoc_req_len, 0, 0);
@@ -96,7 +96,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	os_free(sta->fils_pending_assoc_req);
  	sta->fils_pending_assoc_req = NULL;
  	sta->fils_pending_assoc_req_len = 0;
-@@ -7621,6 +7656,13 @@ static void handle_assoc(struct hostapd_
+@@ -9154,6 +9189,13 @@ static void handle_assoc(struct hostapd_
  			       seq_ctrl);
  		return;
  	}
@@ -110,7 +110,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	sta->last_seq_ctrl = seq_ctrl;
  	sta->last_subtype = reassoc ? WLAN_FC_STYPE_REASSOC_REQ :
  		WLAN_FC_STYPE_ASSOC_REQ;
-@@ -7930,6 +7972,8 @@ static void handle_assoc(struct hostapd_
+@@ -9463,6 +9505,8 @@ static void handle_assoc(struct hostapd_
  					    NULL : sta,
  					    mgmt->sa, resp, reassoc,
  					    pos, left, rssi, omit_rsnxe);
@@ -119,9 +119,9 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  	if (set_beacon)
  		ieee802_11_update_beacons(hapd->iface);
-@@ -8824,6 +8868,8 @@ static void handle_assoc_cb(struct hosta
- 		return;
- 	}
+@@ -10407,6 +10451,8 @@ static void handle_assoc_cb(struct hosta
+ 	epp_sta = sta->epp_sta;
+ #endif /* CONFIG_ENC_ASSOC */
  
 +	assoc_resp_pending_clear(sta);
 +
@@ -130,7 +130,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	    hapd->mld_link_id != sta->mld_assoc_link_id) {
 --- a/src/ap/sta_info.h
 +++ b/src/ap/sta_info.h
-@@ -269,6 +269,7 @@ struct sta_info {
+@@ -276,6 +276,7 @@ struct sta_info {
  	u16 last_seq_ctrl;
  	/* Last Authentication/(Re)Association Request/Action frame subtype */
  	u8 last_subtype;

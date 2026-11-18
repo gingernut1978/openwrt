@@ -24,7 +24,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/src/ap/drv_callbacks.c
 +++ b/src/ap/drv_callbacks.c
-@@ -3113,6 +3113,10 @@ void hostapd_wpa_event(void *ctx, enum w
+@@ -3114,6 +3114,10 @@ void hostapd_wpa_event(void *ctx, enum w
  		hostapd_link_remove_expired(
  			hapd, data->ap_removal_timer_expired.links);
  		break;
@@ -240,7 +240,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	if (removal_offload && hapd->conf && hapd->conf->mld_ap && hapd->mld)
 --- a/src/ap/hostapd.h
 +++ b/src/ap/hostapd.h
-@@ -566,6 +566,12 @@ struct hostapd_data {
+@@ -555,6 +555,12 @@ struct hostapd_data {
  	bool eht_mld_link_removal_start_pending;
  	/* The return of the update that started the driver's count */
  	struct os_reltime eht_mld_link_removal_return;
@@ -253,7 +253,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	/* The first Beacon frame of this link waits for the expiry of an
  	 * offloaded removal of another link */
  	bool eht_mld_beacon_start_held;
-@@ -1062,6 +1068,9 @@ u64 hostapd_link_remove_ms(struct hostap
+@@ -1058,6 +1064,9 @@ u64 hostapd_link_remove_ms(struct hostap
  void hostapd_mld_beacons_update(struct hostapd_data *hapd);
  void hostapd_link_remove_tx_status(struct hostapd_data *hapd, const u8 *addr);
  void hostapd_link_remove_expired(struct hostapd_data *hapd, u16 links);
@@ -265,7 +265,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  bool hostapd_link_remove_pending(struct hostapd_data *hapd);
 --- a/src/drivers/driver_common.c
 +++ b/src/drivers/driver_common.c
-@@ -113,6 +113,7 @@ const char * event_to_string(enum wpa_ev
+@@ -114,6 +114,7 @@ const char * event_to_string(enum wpa_ev
  	E2S(CRIT_UPDATE_DONE);
  	E2S(ADV_TTLM);
  	E2S(AP_REMOVAL_TIMER_EXPIRED);
@@ -275,7 +275,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	return "UNKNOWN";
 --- a/src/drivers/driver.h
 +++ b/src/drivers/driver.h
-@@ -6861,6 +6861,14 @@ enum wpa_event_type {
+@@ -6956,6 +6956,14 @@ enum wpa_event_type {
  	 * Described in wpa_event_data.ap_removal_timer_expired.
  	 */
  	EVENT_AP_REMOVAL_TIMER_EXPIRED,
@@ -290,7 +290,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  };
  
  
-@@ -7882,6 +7890,24 @@ union wpa_event_data {
+@@ -7994,6 +8002,24 @@ union wpa_event_data {
  	} ap_removal_timer_expired;
  
  	/**
@@ -317,7 +317,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	struct pasn_auth pasn_auth;
 --- a/src/drivers/driver_nl80211_event.c
 +++ b/src/drivers/driver_nl80211_event.c
-@@ -207,6 +207,7 @@ static const char * nl80211_command_to_s
+@@ -209,6 +209,7 @@ static const char * nl80211_command_to_s
  	C2S(NL80211_CMD_ADV_TTLM_ENDED)
  	C2S(NL80211_CMD_SET_SCS)
  	C2S(NL80211_CMD_SET_MSCS)
@@ -325,7 +325,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	C2S(__NL80211_CMD_AFTER_LAST)
  	}
  #undef C2S
-@@ -4935,7 +4936,7 @@ static void nl80211_crit_update_done_eve
+@@ -5122,7 +5123,7 @@ static void nl80211_crit_update_done_eve
  
  
  /* The driver reports CLOCK_BOOTTIME, which os_get_reltime() need not use */
@@ -334,7 +334,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  {
  	struct timespec ts;
  	u64 now;
-@@ -4964,9 +4965,8 @@ static void nl80211_adv_ttlm_event(struc
+@@ -5151,9 +5152,8 @@ static void nl80211_adv_ttlm_event(struc
  	data.adv_ttlm.link_id = NL80211_DRV_LINK_ID_NA;
  	data.adv_ttlm.cookie = nla_get_u64(tb[NL80211_ATTR_COOKIE]);
  	data.adv_ttlm.tbtt_valid =
@@ -346,7 +346,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  	switch (cmd) {
  	case NL80211_CMD_ADV_TTLM_STARTED:
-@@ -4999,6 +4999,40 @@ static void nl80211_adv_ttlm_event(struc
+@@ -5186,6 +5186,40 @@ static void nl80211_adv_ttlm_event(struc
  }
  
  
@@ -387,7 +387,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  static void do_process_drv_event(struct i802_bss *bss, int cmd,
  				 struct nlattr **tb)
  {
-@@ -5283,6 +5317,10 @@ static void do_process_drv_event(struct
+@@ -5470,6 +5504,10 @@ static void do_process_drv_event(struct
  	case NL80211_CMD_ADV_TTLM_ENDED:
  		nl80211_adv_ttlm_event(bss, cmd, tb);
  		break;
@@ -400,7 +400,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		break;
 --- a/src/drivers/nl80211_copy.h
 +++ b/src/drivers/nl80211_copy.h
-@@ -1522,6 +1522,15 @@
+@@ -1533,6 +1533,15 @@
   *	parameters are in %NL80211_ATTR_MSCS_DESCRIPTOR. The reply carries
   *	the status code in %NL80211_ATTR_STATUS_CODE.
   *
@@ -416,7 +416,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
   * @NL80211_CMD_MAX: highest used command number
   * @__NL80211_CMD_AFTER_LAST: internal use
   */
-@@ -1813,6 +1822,8 @@ enum nl80211_commands {
+@@ -1824,6 +1833,8 @@ enum nl80211_commands {
  	NL80211_CMD_SET_SCS,
  	NL80211_CMD_SET_MSCS,
  
@@ -425,7 +425,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	/* add new commands above here */
  
  	/* used to define NL80211_CMD_MAX below */
-@@ -3334,6 +3345,15 @@ enum nl80211_commands {
+@@ -3346,6 +3357,15 @@ enum nl80211_commands {
   * @NL80211_ATTR_MSCS_DESCRIPTOR: Nested set of &enum nl80211_mscs_desc_attr
   *	attributes. Used with %NL80211_CMD_SET_MSCS.
   *
@@ -441,7 +441,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
   * @NUM_NL80211_ATTR: total number of nl80211_attrs available
   * @NL80211_ATTR_MAX: highest attribute number currently defined
   * @__NL80211_ATTR_AFTER_LAST: internal use
-@@ -3951,6 +3971,10 @@ enum nl80211_attrs {
+@@ -3963,6 +3983,10 @@ enum nl80211_attrs {
  	NL80211_ATTR_SCS_DESCRIPTORS,
  	NL80211_ATTR_MSCS_DESCRIPTOR,
  
@@ -452,7 +452,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	/* add attributes here, update the policy in nl80211.c */
  
  	__NL80211_ATTR_AFTER_LAST,
-@@ -7413,14 +7437,15 @@ enum nl80211_feature_flags {
+@@ -7436,14 +7460,15 @@ enum nl80211_feature_flags {
   * @NL80211_EXT_FEATURE_AP_REMOVAL_TIMER_OFFLOAD: The driver counts the AP
   *	Removal Timer of an affiliated AP that a Reconfiguration Multi-Link
   *	element in the beacon of an AP MLD link announces (IEEE 802.11be-2024,

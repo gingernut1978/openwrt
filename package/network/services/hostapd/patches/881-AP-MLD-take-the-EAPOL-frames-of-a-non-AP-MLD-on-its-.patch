@@ -123,7 +123,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  				  const u8 *link_addr)
 --- a/src/ap/sta_info.h
 +++ b/src/ap/sta_info.h
-@@ -433,6 +433,8 @@ struct sta_info * ap_get_sta_mld_links(s
+@@ -439,6 +439,8 @@ struct sta_info * ap_get_sta_mld_links(s
  				       const u8 *addr,
  				       bool (*match)(struct hostapd_data *hapd,
  						     struct sta_info *sta));

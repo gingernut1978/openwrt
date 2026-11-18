@@ -24,7 +24,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/src/drivers/driver_nl80211.c
 +++ b/src/drivers/driver_nl80211.c
-@@ -12098,10 +12098,15 @@ static int driver_nl80211_set_first_bss(
+@@ -12236,10 +12236,15 @@ static int driver_nl80211_set_first_bss(
  		if (tbss->next != bss)
  			continue;
  

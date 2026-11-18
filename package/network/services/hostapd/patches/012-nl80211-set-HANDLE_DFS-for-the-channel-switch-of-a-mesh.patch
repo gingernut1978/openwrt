@@ -21,7 +21,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 
 --- a/src/drivers/driver_nl80211.c
 +++ b/src/drivers/driver_nl80211.c
-@@ -12380,6 +12380,8 @@ static int nl80211_switch_channel(void *
+@@ -12518,6 +12518,8 @@ static int nl80211_switch_channel(void *
  	    (ret = nl80211_put_freq_params(msg, &settings->freq_params, bss)) ||
  	    (settings->block_tx &&
  	     nla_put_flag(msg, NL80211_ATTR_CH_SWITCH_BLOCK_TX)) ||
@@ -30,7 +30,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	    (settings->link_id != NL80211_DRV_LINK_ID_NA &&
  	     nla_put_u8(msg, NL80211_ATTR_MLO_LINK_ID, settings->link_id)))
  		goto error;
-@@ -13174,6 +13176,7 @@ static int nl80211_join_mesh(struct i802
+@@ -13312,6 +13314,7 @@ static int nl80211_join_mesh(struct i802
  	}
  	ret = 0;
  	drv->assoc_freq = bss->flink->freq = params->freq.freq;

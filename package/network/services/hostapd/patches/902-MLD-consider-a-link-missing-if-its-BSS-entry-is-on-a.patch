@@ -27,7 +27,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
 --- a/wpa_supplicant/bss.c
 +++ b/wpa_supplicant/bss.c
-@@ -1879,6 +1879,20 @@ u16 wpa_bss_get_usable_links(struct wpa_supplicant *wpa_s, struct wpa_bss *bss,
+@@ -1962,6 +1962,20 @@ u16 wpa_bss_get_usable_links(struct wpa_
  			continue;
  		}
  

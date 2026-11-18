@@ -45,7 +45,7 @@ Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
  }
  
  
-@@ -2951,12 +2951,13 @@ static int wpa_ft_psk_pmk_r1(struct wpa_
+@@ -2946,12 +2946,13 @@ static int wpa_ft_psk_pmk_r1(struct wpa_
  	const u8 *ssid = wpa_auth->conf.ssid;
  	size_t ssid_len = wpa_auth->conf.ssid_len;
  	int pairwise;
@@ -60,7 +60,7 @@ Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
  		if (pmk == NULL)
  			break;
  
-@@ -2978,6 +2979,16 @@ static int wpa_ft_psk_pmk_r1(struct wpa_
+@@ -2973,6 +2974,16 @@ static int wpa_ft_psk_pmk_r1(struct wpa_
  			*out_pairwise = pairwise;
  		os_memcpy(sm->PMK, pmk, PMK_LEN);
  		sm->pmk_len = PMK_LEN;

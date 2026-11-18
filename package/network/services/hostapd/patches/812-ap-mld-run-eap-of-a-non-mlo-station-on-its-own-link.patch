@@ -195,7 +195,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  }
  
  
-@@ -1972,14 +1973,37 @@ static int ieee802_1x_select_radius_iden
+@@ -1973,14 +1974,37 @@ static int ieee802_1x_select_radius_iden
  
  
  static struct eapol_state_machine *
@@ -236,7 +236,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  }
  
  
-@@ -2064,7 +2088,7 @@ ieee802_1x_receive_auth(struct radius_ms
+@@ -2065,7 +2089,7 @@ ieee802_1x_receive_auth(struct radius_ms
  	int override_eapReq = 0;
  	struct radius_hdr *hdr = radius_msg_get_hdr(msg);
  
@@ -245,7 +245,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	if (!sm) {
  		wpa_printf(MSG_DEBUG,
  			   "IEEE 802.1X: Could not find matching station for this RADIUS message");
-@@ -2334,11 +2358,40 @@ static void ieee802_1x_rekey(void *eloop
+@@ -2335,11 +2359,40 @@ static void ieee802_1x_rekey(void *eloop
  #endif /* CONFIG_WEP */
  
  
@@ -287,7 +287,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  #ifdef CONFIG_WPS
  
-@@ -2380,8 +2433,8 @@ static void ieee802_1x_aaa_send(void *ct
+@@ -2381,8 +2434,8 @@ static void ieee802_1x_aaa_send(void *ct
  				const u8 *data, size_t datalen)
  {
  #ifndef CONFIG_NO_RADIUS
@@ -297,7 +297,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  	ieee802_1x_encapsulate_radius(hapd, sta, data, datalen);
  #endif /* CONFIG_NO_RADIUS */
-@@ -2391,8 +2444,8 @@ static void ieee802_1x_aaa_send(void *ct
+@@ -2392,8 +2445,8 @@ static void ieee802_1x_aaa_send(void *ct
  static bool _ieee802_1x_finished(void *ctx, void *sta_ctx, int success,
  				 int preauth, bool logoff)
  {
@@ -307,7 +307,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  	if (preauth) {
  		rsn_preauth_finished(hapd, sta, success);
-@@ -2403,11 +2456,11 @@ static bool _ieee802_1x_finished(void *c
+@@ -2404,11 +2457,11 @@ static bool _ieee802_1x_finished(void *c
  }
  
  
@@ -323,7 +323,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	const struct hostapd_eap_user *eap_user;
  	int i;
  	int rv = -1;
-@@ -2454,12 +2507,9 @@ out:
+@@ -2455,12 +2508,9 @@ out:
  static int ieee802_1x_sta_entry_alive(void *ctx, const u8 *addr)
  {
  	struct hostapd_data *hapd = ctx;
@@ -338,7 +338,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  }
  
  
-@@ -2492,8 +2542,8 @@ static void ieee802_1x_logger(void *ctx,
+@@ -2493,8 +2543,8 @@ static void ieee802_1x_logger(void *ctx,
  static void ieee802_1x_set_port_authorized(void *ctx, void *sta_ctx,
  					   int authorized)
  {
@@ -348,7 +348,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  	ieee802_1x_set_sta_authorized(hapd, sta, authorized);
  }
-@@ -2501,8 +2551,8 @@ static void ieee802_1x_set_port_authoriz
+@@ -2502,8 +2552,8 @@ static void ieee802_1x_set_port_authoriz
  
  static void _ieee802_1x_abort_auth(void *ctx, void *sta_ctx)
  {
@@ -358,7 +358,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  	ieee802_1x_abort_auth(hapd, sta);
  }
-@@ -2513,8 +2563,8 @@ static void _ieee802_1x_tx_key(void *ctx
+@@ -2514,8 +2564,8 @@ static void _ieee802_1x_tx_key(void *ctx
  {
  #ifndef CONFIG_FIPS
  #ifndef CONFIG_NO_RC4
@@ -370,7 +370,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  #endif /* CONFIG_NO_RC4 */
 --- a/src/ap/sta_info.c
 +++ b/src/ap/sta_info.c
-@@ -77,6 +77,50 @@ struct sta_info * ap_get_sta(struct host
+@@ -78,6 +78,50 @@ struct sta_info * ap_get_sta(struct host
  }
  
  
@@ -423,7 +423,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  				  const u8 *link_addr)
 --- a/src/ap/sta_info.h
 +++ b/src/ap/sta_info.h
-@@ -392,6 +392,10 @@ int ap_for_each_sta(struct hostapd_data
+@@ -412,6 +412,10 @@ int ap_for_each_sta(struct hostapd_data
  			      void *ctx),
  		    void *ctx);
  struct sta_info * ap_get_sta(struct hostapd_data *hapd, const u8 *sta);
@@ -436,7 +436,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  const u8 * ap_sta_link_addr(struct hostapd_data *hapd, struct sta_info *sta);
 --- a/src/eap_server/eap.h
 +++ b/src/eap_server/eap.h
-@@ -272,6 +272,10 @@ struct eap_config {
+@@ -273,6 +273,10 @@ struct eap_config {
  
  struct eap_session_data {
  	const struct wpabuf *assoc_wps_ie;
@@ -612,7 +612,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  			cfg.use_psk_key = 1;
 --- a/src/eapol_auth/eapol_auth_sm.c
 +++ b/src/eapol_auth/eapol_auth_sm.c
-@@ -788,7 +788,8 @@ struct eapol_state_machine *
+@@ -798,7 +798,8 @@ struct eapol_state_machine *
  eapol_auth_alloc(struct eapol_authenticator *eapol, const u8 *addr,
  		 int flags, const struct wpabuf *assoc_wps_ie,
  		 const struct wpabuf *assoc_p2p_ie, void *sta_ctx,
@@ -622,7 +622,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  {
  	struct eapol_state_machine *sm;
  	struct eap_session_data eap_sess;
-@@ -845,6 +846,8 @@ eapol_auth_alloc(struct eapol_authentica
+@@ -855,6 +856,8 @@ eapol_auth_alloc(struct eapol_authentica
  	eap_sess.assoc_wps_ie = assoc_wps_ie;
  	eap_sess.assoc_p2p_ie = assoc_p2p_ie;
  	eap_sess.peer_addr = addr;
@@ -631,7 +631,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	sm->eap = eap_server_sm_init(sm, &eapol_cb, eapol->conf.eap_cfg,
  				     &eap_sess);
  	if (sm->eap == NULL) {
-@@ -1029,8 +1032,9 @@ static int eapol_sm_get_eap_user(void *c
+@@ -1039,8 +1042,9 @@ static int eapol_sm_get_eap_user(void *c
  {
  	struct eapol_state_machine *sm = ctx;
  

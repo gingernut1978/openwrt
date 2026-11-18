@@ -292,17 +292,17 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		count++;
 --- a/src/ap/sta_info.h
 +++ b/src/ap/sta_info.h
-@@ -389,6 +389,7 @@ struct sta_info {
+@@ -385,6 +385,7 @@ struct sta_info {
  	u8 unsolicited_dialog_token;
  	struct dscp_policy_state dscp_state;
  	u8 scs_active[32]; /* bitmap of the SCSIDs with an active stream */
 +	u8 scs_configured[32]; /* bitmap of the SCSIDs of configured rules */
  	bool mscs_active;
  #endif /* CONFIG_ROBUST_AV */
- };
+ 
 --- a/src/ap/ieee802_11_eht.c
 +++ b/src/ap/ieee802_11_eht.c
-@@ -1681,6 +1681,9 @@ struct sta_info * hostapd_ml_move_assoc_
+@@ -1655,6 +1655,9 @@ struct sta_info * hostapd_ml_move_assoc_
  	os_memset(sta->scs_active, 0, sizeof(sta->scs_active));
  	assoc_sta->mscs_active = sta->mscs_active;
  	sta->mscs_active = false;

@@ -19,7 +19,7 @@ carries at the start of the STA profile of an added link.
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 --- a/src/ap/ieee802_11.c
 +++ b/src/ap/ieee802_11.c
-@@ -6629,6 +6629,7 @@ int ieee80211_ml_process_link(struct hos
+@@ -8104,6 +8104,7 @@ int ieee80211_ml_process_link(struct hos
  	}
  
  	sta->flags |= origin_sta->flags | WLAN_STA_ASSOC_REQ_OK;
@@ -29,7 +29,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	ap_sta_set_mld(sta, true);
 --- a/src/ap/ieee802_11_eht.c
 +++ b/src/ap/ieee802_11_eht.c
-@@ -1884,8 +1884,9 @@ static bool recover_from_zero_links(u16
+@@ -1858,8 +1858,9 @@ static bool recover_from_zero_links(u16
  
  static u16
  hostapd_ml_process_reconf_link(struct hostapd_data *hapd,
@@ -41,7 +41,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  {
  	struct hostapd_data *lhapd, *other_hapd;
  	struct mld_link_info link;
-@@ -1898,12 +1899,14 @@ hostapd_ml_process_reconf_link(struct ho
+@@ -1872,12 +1873,14 @@ hostapd_ml_process_reconf_link(struct ho
  	os_memset(&link, 0, sizeof(link));
  
  	link.valid = 1;
@@ -58,7 +58,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	if (link.status != WLAN_STATUS_SUCCESS)
  		return link.status;
  
-@@ -2641,10 +2644,9 @@ hostapd_validate_link_reconf_req(struct
+@@ -2620,10 +2623,9 @@ hostapd_validate_link_reconf_req(struct
  		    info->sta_prof_len < 2)
  			continue;
  
