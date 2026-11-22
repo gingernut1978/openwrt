@@ -13,6 +13,15 @@ PKG_FLAGS:=nonshared
 
 include $(INCLUDE_DIR)/package.mk
 
+# Board files placed in ./src are overlaid onto the pinned
+# firmware_qca-wireless checkout so that the install-overlay wildcard
+# (board-$(BOARD).*) finds them. This is required for boards whose BDF is
+# not yet present upstream in firmware_qca-wireless.
+define Build/Prepare
+	$(Build/Prepare/Default)
+	$(if $(wildcard $(CURDIR)/src/board-*.*),$(CP) $(CURDIR)/src/board-*.* $(PKG_BUILD_DIR)/)
+endef
+
 define Build/Compile
 endef
 
@@ -94,6 +103,7 @@ ALLWIFIBOARDS:= \
 	prpl_haze \
 	qihoo_360v6 \
 	qnap_301w \
+	redmi_ax5 \
 	redmi_ax6 \
 	skspruce_wia3300-20 \
 	spectrum_sax1v1k \
@@ -231,8 +241,9 @@ Do not install it for any other device!
 endef
 
 # To add local files for testing:
-# 1. create a new directory in the ipq-wifi package directory called "files".
-# 2. place there the needed board files.
+# 1. place the needed board files in the "src" directory of this package.
+# 2. Build/Prepare overlays src/board-*.<suffix> onto the checked-out tree,
+#    so the per-board install-overlay picks them up.
 #
 # To send a board file upstream:
 # 1. create a pull request in https://github.com/openwrt/firmware_qca-wireless or
@@ -315,6 +326,7 @@ $(eval $(call generate-ipq-wifi-package,netgear_wax630,Netgear WAX630))
 $(eval $(call generate-ipq-wifi-package,prpl_haze,prpl Haze))
 $(eval $(call generate-ipq-wifi-package,qihoo_360v6,Qihoo 360V6))
 $(eval $(call generate-ipq-wifi-package,qnap_301w,QNAP 301w))
+$(eval $(call generate-ipq-wifi-package,redmi_ax5,Redmi AX5))
 $(eval $(call generate-ipq-wifi-package,redmi_ax6,Redmi AX6))
 $(eval $(call generate-ipq-wifi-package,skspruce_wia3300-20,SKSpruce WIA3300-20))
 $(eval $(call generate-ipq-wifi-package,spectrum_sax1v1k,Spectrum SAX1V1K))

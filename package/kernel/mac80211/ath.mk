@@ -339,6 +339,7 @@ define KernelPackage/ath11k/config
        config ATH11K_MEM_PROFILE_256M
                bool "Use the 256 MiB memory profile"
                depends on PACKAGE_kmod-ath11k
+               default y if TARGET_qualcommax_ipq60xx_DEVICE_redmi_ax5
                help
                  Use the datapath ring sizes of Qualcomm's QSDK for
                  QCA6018, for devices with 256 MiB of RAM.

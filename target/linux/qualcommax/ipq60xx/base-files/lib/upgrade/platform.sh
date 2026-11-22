@@ -276,6 +276,23 @@ platform_do_upgrade() {
 		remove_oem_ubi_volume squashfs
 		nand_do_upgrade "$1"
 		;;
+	redmi,ax5)
+		# Dual-boot: U-Boot picks rootfs or rootfs_1 by flag_boot_rootfs
+		# and passes it as ubi.mtd. Upgrade the slot that is running.
+		CI_UBIPART="$(sed -n 's/.*ubi\.mtd=\([^ ]*\).*/\1/p' /proc/cmdline)"
+		case "$CI_UBIPART" in
+		rootfs|rootfs_1)
+			;;
+		*)
+			if [ "$(fw_printenv -n flag_boot_rootfs 2>/dev/null)" = "1" ]; then
+				CI_UBIPART="rootfs_1"
+			else
+				CI_UBIPART="rootfs"
+			fi
+			;;
+		esac
+		nand_do_upgrade "$1"
+		;;
 	tplink,eap610-outdoor|\
 	tplink,eap620-hd-v2|\
 	tplink,eap620-hd-v3|\
