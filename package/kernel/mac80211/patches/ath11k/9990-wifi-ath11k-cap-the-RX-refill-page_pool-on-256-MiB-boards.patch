@@ -1,0 +1,42 @@
+From: Andrew Sim <andrewsimz@gmail.com>
+Subject: [PATCH] wifi: ath11k: cap the RX refill page_pool on 256 MiB boards
+
+The RX refill page_pool is created with pool_size equal to the refill
+ring's entry count. Its recycle ring keeps up to that many order-1 pages
+beyond the ones posted to the hardware, which with 1024 entries is up to
+8 MiB per radio that no meminfo field reports. On a 256 MiB IPQ6000
+board MemAvailable was seen falling steadily with both radios up while
+Slab and AnonPages stayed flat.
+
+With ATH11K_MEM_PROFILE_256M, cap pool_size at 256 pages. Pages returned
+when the recycle ring is full go back to the page allocator.
+
+Signed-off-by: Andrew Sim <andrewsimz@gmail.com>
+--- a/drivers/net/wireless/ath/ath11k/dp_rx.c
++++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
+@@ -876,6 +876,16 @@
+ 	return 0;
+ }
+ 
++/* The page_pool recycle cache holds up to pool_size pages beyond those
++ * posted to the ring. With order-1 pages and a 1024-entry refill ring that
++ * is 8 MiB per radio a 256 MiB board cannot spare, so cap it there.
++ */
++#ifdef CPTCFG_ATH11K_MEM_PROFILE_256M
++#define DP_RX_PP_POOL_SIZE(n)	min_t(u32, (n), 256)
++#else
++#define DP_RX_PP_POOL_SIZE(n)	(n)
++#endif
++
+ static int ath11k_dp_rxdma_ring_buf_setup(struct ath11k *ar,
+ 					  struct dp_rxdma_ring *rx_ring,
+ 					  u32 ringtype)
+@@ -893,7 +903,7 @@
+ 		struct page_pool_params pp_params = {
+ 			.order = DP_RX_PP_ORDER,
+ 			.flags = PP_FLAG_DMA_MAP,
+-			.pool_size = num_entries,
++			.pool_size = DP_RX_PP_POOL_SIZE(num_entries),
+ 			.nid = NUMA_NO_NODE,
+ 			.dev = ar->ab->dev,
+ 			.dma_dir = DMA_BIDIRECTIONAL,
