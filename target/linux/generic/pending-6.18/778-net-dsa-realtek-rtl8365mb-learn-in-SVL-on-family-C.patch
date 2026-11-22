@@ -1,0 +1,273 @@
+From: Andrew Sim <andrewsimz@gmail.com>
+Date: Fri, 20 Nov 2026 19:00:00 +0100
+Subject: [PATCH] net: dsa: realtek: rtl8365mb: learn in SVL in a VLAN-unaware
+ bridge on family C
+
+Family C always enables Independent VLAN Learning (IVL), so the switch
+keys its L2 table by MAC address, VID and EFID. In a VLAN-unaware bridge,
+DSA programs FDB and MDB entries with VID 0, but the switch learns
+addresses in the port's PVID (VID 1 by default). A static entry from DSA
+therefore never replaces the entry the switch learned for the same
+address, and lookups only hit the learned one.
+
+This breaks roaming. When a Wi-Fi client moves from an AP wired behind a
+user port onto this device's Wi-Fi, DSA adds its address towards the CPU
+port, but the switch keeps forwarding to the old port until the learned
+entry ages out. The client's frames enter from the CPU port, which does
+not learn, so nothing corrects it. On an RTL8367S this meant no DHCP
+lease and no traffic for about 100 seconds after each roam.
+
+Family D already learns in SVL while no user port is VLAN-filtering, see
+"net: dsa: realtek: rtl8365mb: set and get VLAN 4k for family D". Do the
+same on family C: drop the family D checks around the IVL_EN choice, the
+vlan_4k_used bookkeeping, the refresh on a VLAN filtering change and its
+undo, and rename the helpers to match. Family C then also gets the flush
+of dynamic entries after a switch-wide IVL_EN change, so entries learned
+under the old key do not linger until they age out. In the family C L2
+entry layout, program VID 0 entries with the SVL key as family D does,
+and report entries read back in SVL with VID 0. Family C keeps
+separating bridges and standalone ports by EFID, so it does not need the
+port-based FID that family D uses for that.
+
+Co-developed-by: Mieczyslaw Nalewaj <namiltd@yahoo.com>
+Signed-off-by: Mieczyslaw Nalewaj <namiltd@yahoo.com>
+Assisted-by: Claude:claude-opus-5-5
+Signed-off-by: Andrew Sim <andrewsimz@gmail.com>
+---
+ drivers/net/dsa/realtek/rtl8365mb_l2.c   | 24 +++++++++---
+ drivers/net/dsa/realtek/rtl8365mb_main.c | 20 +++++-----
+ drivers/net/dsa/realtek/rtl8365mb_vlan.c | 50 ++++++++++++------------
+ drivers/net/dsa/realtek/rtl8365mb_vlan.h |  6 +--
+ 4 files changed, 56 insertions(+), 44 deletions(-)
+
+diff --git a/drivers/net/dsa/realtek/rtl8365mb_l2.c b/drivers/net/dsa/realtek/rtl8365mb_l2.c
+index 162082e..120190b 100644
+--- a/drivers/net/dsa/realtek/rtl8365mb_l2.c
++++ b/drivers/net/dsa/realtek/rtl8365mb_l2.c
+@@ -157,8 +157,10 @@ void rtl8365mb_c_l2_data_to_uc(const u16 *data,
+ 
+ 	rtl8365mb_l2_data_to_mac(data, uc->key.mac_addr);
+ 	uc->key.efid = FIELD_GET(RTL8365MB_L2_UC_D4_EFID_MSK, data[4]);
+-	uc->key.vid = FIELD_GET(RTL8365MB_L2_UC_D3_VID_MSK, data[3]);
+ 	uc->key.ivl = FIELD_GET(RTL8365MB_L2_UC_D3_IVL_MSK, data[3]);
++	/* an SVL entry belongs to a VLAN-unaware bridge or a standalone port */
++	uc->key.vid = uc->key.ivl ?
++		      FIELD_GET(RTL8365MB_L2_UC_D3_VID_MSK, data[3]) : 0;
+ 	uc->key.fid = FIELD_GET(RTL8365MB_L2_UC_D4_FID_MSK, data[4]);
+ 	uc->age = FIELD_GET(RTL8365MB_L2_UC_D4_AGE_MSK, data[4]);
+ 	uc->auth = FIELD_GET(RTL8365MB_L2_UC_D4_AUTH_MSK, data[4]);
+@@ -179,12 +181,20 @@ void rtl8365mb_c_l2_data_to_uc(const u16 *data,
+ void rtl8365mb_c_l2_uc_to_data(const struct rtl8365mb_l2_uc *uc,
+ 			       u16 *data)
+ {
++	/* As on family D: VID 0 is a VLAN-unaware bridge or a standalone
++	 * port, whose traffic the switch learns in SVL (IVL=0, FID=0), see
++	 * rtl8365mb_vlan_4k_refresh_ivl(). Use the same key here, otherwise
++	 * a static entry would not replace the learned one. Only a real VID
++	 * selects IVL.
++	 */
++	bool ivl = uc->key.ivl && uc->key.vid;
+ 	u32 val;
+ 
+ 	memset(data, 0, RTL8365MB_C_L2_ENTRY_SIZE * 2);
+ 	rtl8365mb_l2_mac_to_data(uc->key.mac_addr, data);
+-	data[3] |= FIELD_PREP(RTL8365MB_L2_UC_D3_VID_MSK, uc->key.vid);
+-	data[3] |= FIELD_PREP(RTL8365MB_L2_UC_D3_IVL_MSK, uc->key.ivl);
++	data[3] |= FIELD_PREP(RTL8365MB_L2_UC_D3_VID_MSK,
++			      ivl ? uc->key.vid : 0);
++	data[3] |= FIELD_PREP(RTL8365MB_L2_UC_D3_IVL_MSK, ivl);
+ 
+ 	val = FIELD_GET(RTL8365MB_L2_UC_PORT_HI_MSK, uc->port);
+ 	data[3] |= FIELD_PREP(RTL8365MB_L2_UC_D3_PORT_EXT_MSK, val);
+@@ -232,12 +242,14 @@ void rtl8365mb_c_l2_data_to_mc(const u16 *data,
+ void rtl8365mb_c_l2_mc_to_data(const struct rtl8365mb_l2_mc *mc,
+ 			       u16 *data)
+ {
++	/* Same as for unicast: VID 0 means SVL, and FID 0 then */
++	bool ivl = mc->key.ivl && mc->key.vid;
+ 	u32 val;
+ 
+ 	memset(data, 0, RTL8365MB_C_L2_ENTRY_SIZE * 2);
+ 	rtl8365mb_l2_mac_to_data(mc->key.mac_addr, data);
+-	data[3] |= FIELD_PREP(RTL8365MB_L2_MC_D3_VID_MSK, mc->key.vid);
+-	data[3] |= FIELD_PREP(RTL8365MB_L2_MC_D3_IVL_MSK, mc->key.ivl);
++	data[3] |= FIELD_PREP(RTL8365MB_L2_MC_D3_VID_MSK, ivl ? mc->key.vid : 0);
++	data[3] |= FIELD_PREP(RTL8365MB_L2_MC_D3_IVL_MSK, ivl);
+ 
+ 	val = FIELD_GET(RTL8365MB_L2_MC_MBR_HI1_MSK, mc->member);
+ 	data[3] |= FIELD_PREP(RTL8365MB_L2_MC_D3_MBR_HI1_MSK, val);
+@@ -280,7 +292,7 @@ void rtl8365mb_d_l2_uc_to_data(const struct rtl8365mb_l2_uc *uc,
+ 	 * in SVL (IVL=0, FID=1), isolated from standalone ports in FID 0.
+ 	 * Use the same key here so static entries match the learned ones.
+ 	 * Only a real VID selects IVL. IVL_EN of the VLANs follows the VLAN
+-	 * filtering state (see rtl8365mb_d_vlan_4k_refresh_ivl()), so this
++	 * filtering state (see rtl8365mb_vlan_4k_refresh_ivl()), so this
+ 	 * matches the key the chip learns with. An entry read back with
+ 	 * IVL=0 and FID 0 is written back with FID 1: the driver only
+ 	 * creates SVL entries in FID 1, FID 0 is used by standalone ports,
+diff --git a/drivers/net/dsa/realtek/rtl8365mb_main.c b/drivers/net/dsa/realtek/rtl8365mb_main.c
+index 8535dfe..32b6f4f 100644
+--- a/drivers/net/dsa/realtek/rtl8365mb_main.c
++++ b/drivers/net/dsa/realtek/rtl8365mb_main.c
+@@ -2490,13 +2490,11 @@ static int rtl8365mb_port_vlan_filtering(struct dsa_switch *ds, int port,
+ 	if (ret)
+ 		goto undo_set_framefilter;
+ 
+-	if (rtl8365mb_is_d(priv)) {
+-		mutex_lock(&priv->vlan_lock);
+-		ret = rtl8365mb_d_vlan_4k_refresh_ivl(ds, port, vlan_filtering);
+-		mutex_unlock(&priv->vlan_lock);
+-		if (ret)
+-			goto undo_egress_mode;
+-	}
++	mutex_lock(&priv->vlan_lock);
++	ret = rtl8365mb_vlan_4k_refresh_ivl(ds, port, vlan_filtering);
++	mutex_unlock(&priv->vlan_lock);
++	if (ret)
++		goto undo_egress_mode;
+ 
+ 	if (rtl8365mb_is_d(priv) &&
+ 	    dsa_port_bridge_dev_get(dsa_to_port(ds, port))) {
+@@ -2540,18 +2538,18 @@ static int rtl8365mb_port_vlan_filtering(struct dsa_switch *ds, int port,
+ 	(void)regmap_update_bits(priv->map, RTL8365MB_D_PORT_PBFID_REG(port),
+ 				 RTL8365MB_D_PORT_PBFID_MASK, 0);
+ undo_refresh_ivl:
+-	if (rtl8365mb_is_d(priv)) {
++	{
+ 		/* DSA updates dp->vlan_filtering only after this callback
+ 		 * returns, so old_ivl is the state before the change. Restore
+ 		 * IVL_EN only if the change flipped it; refresh_ivl() would
+ 		 * see no flip here and do nothing.
+ 		 */
+-		bool old_ivl = rtl8365mb_d_want_ivl(ds, -1, false);
+-		bool new_ivl = rtl8365mb_d_want_ivl(ds, port, vlan_filtering);
++		bool old_ivl = rtl8365mb_vlan_want_ivl(ds, -1, false);
++		bool new_ivl = rtl8365mb_vlan_want_ivl(ds, port, vlan_filtering);
+ 
+ 		if (new_ivl != old_ivl) {
+ 			mutex_lock(&priv->vlan_lock);
+-			(void)rtl8365mb_d_vlan_4k_set_ivl(ds, old_ivl);
++			(void)rtl8365mb_vlan_4k_set_ivl(ds, old_ivl);
+ 			mutex_unlock(&priv->vlan_lock);
+ 		}
+ 	}
+diff --git a/drivers/net/dsa/realtek/rtl8365mb_vlan.c b/drivers/net/dsa/realtek/rtl8365mb_vlan.c
+index aecfcf5..da147ed 100644
+--- a/drivers/net/dsa/realtek/rtl8365mb_vlan.c
++++ b/drivers/net/dsa/realtek/rtl8365mb_vlan.c
+@@ -368,15 +368,21 @@ int rtl8365mb_d_vlan_4k_write(struct realtek_priv *priv,
+ 				     data, RTL8365MB_D_CVLAN_ENTRY_SIZE);
+ }
+ 
+-/* Family D has no EFID. Use IVL while at least one user port is VLAN
+- * filtering and SVL otherwise. The family D L2 helpers added later in the
+- * series use the matching key for static FDB/MDB entries. @port/@filtering
+- * override the state of the port currently being changed, as DSA updates
+- * dp->vlan_filtering only after the driver callback returns. The result is
+- * switch-wide: a VLAN-unaware bridge that shares the switch with a
+- * VLAN-aware one also gets IVL (known limitation).
++/* DSA programs the FDB/MDB entries of a VLAN-unaware bridge with VID 0, while
++ * the switch learns an address in the VLAN that it classifies the frame to.
++ * With IVL these are two different keys: a static entry does not replace the
++ * entry learned for the same address, and the switch keeps forwarding to the
++ * port it learned the address on after the address moved behind the CPU port.
++ * So use IVL while at least one user port is VLAN filtering and SVL
++ * otherwise, on both families; the L2 helpers use the matching key for static
++ * FDB/MDB entries. Family D, which has no EFID, also relies on this to
++ * separate a VLAN-unaware bridge from standalone ports by FID.
++ * @port/@filtering override the state of the port currently being changed,
++ * as DSA updates dp->vlan_filtering only after the driver callback returns.
++ * The result is switch-wide: a VLAN-unaware bridge that shares the switch
++ * with a VLAN-aware one also gets IVL (known limitation).
+  */
+-bool rtl8365mb_d_want_ivl(struct dsa_switch *ds, int port, bool filtering)
++bool rtl8365mb_vlan_want_ivl(struct dsa_switch *ds, int port, bool filtering)
+ {
+ 	struct dsa_port *dp;
+ 
+@@ -391,10 +397,10 @@ bool rtl8365mb_d_want_ivl(struct dsa_switch *ds, int port, bool filtering)
+ 
+ /* Set IVL_EN of every 4K entry in use to @want_ivl. Callers must use it only
+  * for a change of the switch-wide state (see
+- * rtl8365mb_d_vlan_4k_refresh_ivl()), so that every entry in use holds
++ * rtl8365mb_vlan_4k_refresh_ivl()), so that every entry in use holds
+  * !@want_ivl on entry. Must be called with &priv->vlan_lock held.
+  */
+-int rtl8365mb_d_vlan_4k_set_ivl(struct dsa_switch *ds, bool want_ivl)
++int rtl8365mb_vlan_4k_set_ivl(struct dsa_switch *ds, bool want_ivl)
+ {
+ 	const struct rtl8365mb_family_info *fi;
+ 	struct realtek_priv *priv = ds->priv;
+@@ -446,18 +452,18 @@ int rtl8365mb_d_vlan_4k_set_ivl(struct dsa_switch *ds, bool want_ivl)
+ }
+ 
+ /* Must be called with &priv->vlan_lock held. */
+-int rtl8365mb_d_vlan_4k_refresh_ivl(struct dsa_switch *ds, int port,
++int rtl8365mb_vlan_4k_refresh_ivl(struct dsa_switch *ds, int port,
+ 				    bool filtering)
+ {
+-	bool want_ivl = rtl8365mb_d_want_ivl(ds, port, filtering);
++	bool want_ivl = rtl8365mb_vlan_want_ivl(ds, port, filtering);
+ 
+ 	/* The scan visits every entry in use, so do it only if this
+ 	 * change flips the switch-wide state, not for each port of a bridge.
+ 	 */
+-	if (want_ivl == rtl8365mb_d_want_ivl(ds, -1, false))
++	if (want_ivl == rtl8365mb_vlan_want_ivl(ds, -1, false))
+ 		return 0;
+ 
+-	return rtl8365mb_d_vlan_4k_set_ivl(ds, want_ivl);
++	return rtl8365mb_vlan_4k_set_ivl(ds, want_ivl);
+ }
+ 
+ static int
+@@ -498,19 +504,15 @@ rtl8365mb_vlan_4k_port_set(struct dsa_switch *ds, int port,
+ 	else
+ 		vlan4k.untag &= ~BIT(port);
+ 
+-	if (!rtl8365mb_is_d(priv))
+-		vlan4k.ivl_en = true;
+-	else
+-		/* An emptied entry goes back to its reset state, so that
+-		 * it is not left in IVL after it leaves vlan_4k_used.
+-		 */
+-		vlan4k.ivl_en = vlan4k.member &&
+-				rtl8365mb_d_want_ivl(ds, -1, false);
++	/* An emptied entry goes back to its reset state, so that it is not
++	 * left in IVL after it leaves vlan_4k_used.
++	 */
++	vlan4k.ivl_en = vlan4k.member && rtl8365mb_vlan_want_ivl(ds, -1, false);
+ 
+ 	/* The write may reach the chip even if an error is reported, so mark
+ 	 * a populated entry as used before writing it.
+ 	 */
+-	if (rtl8365mb_is_d(priv) && vlan4k.member)
++	if (vlan4k.member)
+ 		set_bit(vlan->vid, priv->vlan_4k_used);
+ 
+ 	ret = fi->vlan_4k_write(priv, &vlan4k);
+@@ -519,7 +521,7 @@ rtl8365mb_vlan_4k_port_set(struct dsa_switch *ds, int port,
+ 		return ret;
+ 	}
+ 
+-	if (rtl8365mb_is_d(priv) && !vlan4k.member)
++	if (!vlan4k.member)
+ 		clear_bit(vlan->vid, priv->vlan_4k_used);
+ 
+ 	return 0;
+diff --git a/drivers/net/dsa/realtek/rtl8365mb_vlan.h b/drivers/net/dsa/realtek/rtl8365mb_vlan.h
+index 270f88b..1db8184 100644
+--- a/drivers/net/dsa/realtek/rtl8365mb_vlan.h
++++ b/drivers/net/dsa/realtek/rtl8365mb_vlan.h
+@@ -60,8 +60,8 @@ int rtl8365mb_vlan_pvid_port_set(struct dsa_switch *ds, int port, u16 vid,
+ 				 struct netlink_ext_ack *extack);
+ int rtl8365mb_vlan_pvid_port_clear(struct dsa_switch *ds, int port, u16 vid);
+ 
+-bool rtl8365mb_d_want_ivl(struct dsa_switch *ds, int port, bool filtering);
+-int rtl8365mb_d_vlan_4k_set_ivl(struct dsa_switch *ds, bool want_ivl);
+-int rtl8365mb_d_vlan_4k_refresh_ivl(struct dsa_switch *ds, int port,
++bool rtl8365mb_vlan_want_ivl(struct dsa_switch *ds, int port, bool filtering);
++int rtl8365mb_vlan_4k_set_ivl(struct dsa_switch *ds, bool want_ivl);
++int rtl8365mb_vlan_4k_refresh_ivl(struct dsa_switch *ds, int port,
+ 				    bool filtering);
+ #endif /* _REALTEK_RTL8365MB_VLAN_H */
