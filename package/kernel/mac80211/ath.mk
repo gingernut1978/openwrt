@@ -342,8 +342,16 @@ define KernelPackage/ath11k/config
                default y if TARGET_qualcommax_ipq60xx_DEVICE_redmi_ax5
                help
                  Use the datapath ring sizes of Qualcomm's QSDK for
-                 QCA6018, for devices with 256 MiB of RAM.
+                 QCA6018, for devices with 256 MiB of RAM. Also lowers
+                 vm.min_free_kbytes from 16384 to 8192.
 
+endef
+
+define KernelPackage/ath11k/install
+	$(if $(CONFIG_ATH11K_MEM_PROFILE_256M), \
+		$(INSTALL_DIR) $(1)/etc/sysctl.d; \
+		$(INSTALL_DATA) ./files/ath11k-mem-profile-256m.conf \
+			$(1)/etc/sysctl.d/11-ath11k-mem-profile.conf)
 endef
 
 define KernelPackage/ath11k-ahb
