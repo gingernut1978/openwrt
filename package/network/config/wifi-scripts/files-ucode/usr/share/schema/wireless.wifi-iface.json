@@ -924,9 +924,9 @@
 			"type": "boolean"
 		},
 		"qos_map_set": {
-			"description": "QoS Map Set configuration",
+			"description": "QoS Map Set configuration: DSCP,UP exception pairs (up to 21), then 8 DSCP low,high ranges for UP 0 to 7 (255,255 for none). The default follows RFC 8325 for an AP whose clients are end devices: each codepoint in use is an exception and everything else, including CS6 and CS7 (section 8.2), is UP 0. LE (RFC 8622) and CS1 at UP 1, AF2x at 3, CS3, AF3x, CS4 and AF4x at 4, CS5 at 5, VA and EF at 6, nothing at 7. NQB (DSCP 45) is at UP 3, as RFC 9956 sections 7.3 and 7.3.2 allow when UP 0 can't hold a second queue (mac80211 has one per TID): best effort, but a queue apart from Default traffic",
 			"type": "string",
-			"default": "0,0,2,16,1,1,255,255,18,22,24,38,40,40,44,46,48,56"
+			"default": "1,1,8,1,18,3,20,3,22,3,24,4,26,4,28,4,30,4,32,4,34,4,36,4,38,4,40,5,44,6,45,3,46,6,0,63,255,255,255,255,255,255,255,255,255,255,255,255,255,255"
 		},
 		"r0_key_lifetime": {
 			"description": "Default lifetime of the PMK-R0 in seconds",
