@@ -11,7 +11,7 @@ PKG_NAME:=ath11k-firmware
 PKG_SOURCE_DATE:=2024-10-14
 PKG_SOURCE_VERSION:=15f050122da5ef5bef2cc8c7c19dfb7f98060a49
 PKG_MIRROR_HASH:=e7a89d1570f32552ade539376181494724b5eafb31d00451ff2dcf5a2922a0cb
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://git.codelinaro.org/clo/ath-firmware/ath11k-firmware.git
@@ -42,6 +42,23 @@ define Download/$(ATH11K_LEGACY_FW_NAME)
 endef
 $(eval $(call Download,$(ATH11K_LEGACY_FW_NAME)))
 
+# IPQ6018 WLAN.HK.2.12-01460-QCAHKSWPL_SILICONZ-1, from DD-WRT's tree
+ATH11K_DDWRT_FW_NAME:=ath11k-ddwrt-firmware-ipq6018
+ATH11K_DDWRT_FW_DATE:=2025-06-11
+ATH11K_DDWRT_FW_RELEASE:=r61739
+ATH11K_DDWRT_FW_SUBDIR:=$(ATH11K_DDWRT_FW_NAME)-$(ATH11K_DDWRT_FW_DATE)~$(ATH11K_DDWRT_FW_RELEASE)
+ATH11K_DDWRT_FW_SOURCE=$(ATH11K_DDWRT_FW_SUBDIR).tar.zst
+
+define Download/$(ATH11K_DDWRT_FW_NAME)
+	FILE:=$(ATH11K_DDWRT_FW_SOURCE)
+	PROTO:=svn
+	URL:=svn://svn.dd-wrt.com/DD-WRT/src/router/firmwares/wireless/ath11k/IPQ6018
+	SOURCE_VERSION:=61739
+	MIRROR_HASH:=1eb90a54644da852dfd4d2f2229d9cc335a249c76a591fe99e005fba9e13a961
+	SUBDIR:=$(ATH11K_DDWRT_FW_SUBDIR)
+endef
+$(eval $(call Download,$(ATH11K_DDWRT_FW_NAME)))
+
 define Package/ath11k-firmware-default
   SECTION:=firmware
   CATEGORY:=Firmware
@@ -71,13 +88,15 @@ define Build/Clean
 	$(call Build/Clean/Default,)
 
 	rm -rf \
-		$(BUILD_DIR)/$(ATH11K_LEGACY_FW_SUBDIR)
+		$(BUILD_DIR)/$(ATH11K_LEGACY_FW_SUBDIR) \
+		$(BUILD_DIR)/$(ATH11K_DDWRT_FW_SUBDIR)
 endef
 
 define Build/Prepare
 	$(call Build/Prepare/Default,)
 
 	$(TAR) -C $(BUILD_DIR) -xf $(DL_DIR)/$(ATH11K_LEGACY_FW_SOURCE)
+	$(TAR) -C $(BUILD_DIR) -xf $(DL_DIR)/$(ATH11K_DDWRT_FW_SOURCE)
 endef
 
 define Build/Compile
@@ -98,7 +117,8 @@ endef
 define Package/ath11k-firmware-ipq6018/install
 	$(INSTALL_DIR) $(1)/lib/firmware/IPQ6018
 	$(INSTALL_DATA) \
-		$(PKG_BUILD_DIR)/IPQ6018/hw1.0/2.5.0.1/WLAN.HK.2.5.0.1-03982-QCAHKSWPL_SILICONZ-3/* \
+		$(BUILD_DIR)/$(ATH11K_DDWRT_FW_SUBDIR)/hw1.0/q6_fw.* \
+		$(BUILD_DIR)/$(ATH11K_DDWRT_FW_SUBDIR)/hw1.0/m3_fw.* \
 		$(1)/lib/firmware/IPQ6018/
 endef
 
