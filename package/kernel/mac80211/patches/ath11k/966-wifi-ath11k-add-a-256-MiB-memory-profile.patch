@@ -61,7 +61,7 @@ Signed-off-by: Andrew Sim <andrewsimz@gmail.com>
 +	  If unsure, say N.
 --- a/drivers/net/wireless/ath/ath11k/dp.h
 +++ b/drivers/net/wireless/ath/ath11k/dp.h
-@@ -217,14 +217,31 @@ struct ath11k_pdev_dp {
+@@ -215,14 +215,31 @@ struct ath11k_pdev_dp {
  #define DP_RX_RELEASE_RING_SIZE		1024
  #define DP_REO_EXCEPTION_RING_SIZE	128
  #define DP_REO_CMD_RING_SIZE		256
@@ -97,7 +97,7 @@ Signed-off-by: Andrew Sim <andrewsimz@gmail.com>
  
 --- a/local-symbols
 +++ b/local-symbols
-@@ -165,6 +165,7 @@ ATH11K_TRACING=
+@@ -167,6 +167,7 @@ ATH11K_TRACING=
  ATH11K_SPECTRAL=
  ATH11K_THERMAL=
  ATH11K_CFR=

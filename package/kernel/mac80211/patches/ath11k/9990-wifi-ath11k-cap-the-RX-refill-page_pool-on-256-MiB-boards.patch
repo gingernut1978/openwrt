@@ -14,7 +14,7 @@ when the recycle ring is full go back to the page allocator.
 Signed-off-by: Andrew Sim <andrewsimz@gmail.com>
 --- a/drivers/net/wireless/ath/ath11k/dp_rx.c
 +++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
-@@ -876,6 +876,16 @@
+@@ -541,6 +541,16 @@ static int ath11k_dp_rxdma_pdev_buf_free
  	return 0;
  }
  
@@ -31,10 +31,10 @@ Signed-off-by: Andrew Sim <andrewsimz@gmail.com>
  static int ath11k_dp_rxdma_ring_buf_setup(struct ath11k *ar,
  					  struct dp_rxdma_ring *rx_ring,
  					  u32 ringtype)
-@@ -893,7 +903,7 @@
+@@ -555,7 +565,7 @@ static int ath11k_dp_rxdma_ring_buf_setu
  		struct page_pool_params pp_params = {
  			.order = DP_RX_PP_ORDER,
- 			.flags = PP_FLAG_DMA_MAP,
+ 			.flags = PP_FLAG_DMA_MAP | PP_FLAG_DMA_SYNC_DEV,
 -			.pool_size = num_entries,
 +			.pool_size = DP_RX_PP_POOL_SIZE(num_entries),
  			.nid = NUMA_NO_NODE,

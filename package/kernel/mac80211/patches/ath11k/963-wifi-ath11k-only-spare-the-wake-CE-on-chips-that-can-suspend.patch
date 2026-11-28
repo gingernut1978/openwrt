@@ -29,7 +29,7 @@ Signed-off-by: Adriel Santos <adriel.turox@gmail.com>
 ---
 --- a/drivers/net/wireless/ath/ath11k/pcic.c
 +++ b/drivers/net/wireless/ath/ath11k/pcic.c
-@@ -844,7 +844,10 @@ void ath11k_pci_enable_ce_irqs_except_wa
+@@ -843,7 +843,10 @@ void ath11k_pci_enable_ce_irqs_except_wa
  	int i;
  
  	for (i = 0; i < ab->hw_params.ce_count; i++) {
@@ -41,7 +41,7 @@ Signed-off-by: Adriel Santos <adriel.turox@gmail.com>
  		    i == ATH11K_PCI_CE_WAKE_IRQ)
  			continue;
  		ath11k_pcic_ce_irq_enable(ab, i);
-@@ -862,7 +865,9 @@ void ath11k_pci_disable_ce_irqs_except_w
+@@ -861,7 +864,9 @@ void ath11k_pci_disable_ce_irqs_except_w
  		ce_pipe = &ab->ce.ce_pipe[i];
  		irq_idx = ATH11K_PCI_IRQ_CE0_OFFSET + i;
  

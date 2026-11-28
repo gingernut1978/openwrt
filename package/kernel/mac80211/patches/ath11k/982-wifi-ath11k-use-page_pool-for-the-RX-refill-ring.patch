@@ -37,7 +37,7 @@ Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
  	struct idr bufs_idr;
  	/* Protects bufs_idr */
  	spinlock_t idr_lock;
-@@ -231,6 +232,9 @@ struct ath11k_pdev_dp {
+@@ -246,6 +247,9 @@ struct ath11k_pdev_dp {
  #define DP_RX_BUFFER_SIZE	2048
  #define	DP_RX_BUFFER_SIZE_LITE  1024
  #define DP_RX_BUFFER_ALIGN_SIZE	128
@@ -235,7 +235,7 @@ Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
  
  	if (ar->ab->hw_params.rxdma1_enable) {
  		rx_ring = &dp->rxdma_mon_buf_ring;
-@@ -2732,9 +2818,7 @@ try_again:
+@@ -2712,9 +2798,7 @@ try_again:
  		spin_unlock_bh(&rx_ring->idr_lock);
  
  		rxcb = ATH11K_SKB_RXCB(msdu);
@@ -246,7 +246,7 @@ Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
  
  		num_buffs_reaped[mac_id]++;
  
-@@ -3166,9 +3250,7 @@ static int ath11k_dp_rx_reap_mon_status_
+@@ -3160,9 +3244,7 @@ static int ath11k_dp_rx_reap_mon_status_
  				idr_remove(&rx_ring->bufs_idr, buf_id);
  				spin_unlock_bh(&rx_ring->idr_lock);
  
@@ -257,7 +257,7 @@ Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
  
  				dev_kfree_skb_any(skb);
  				pmon->buf_state = DP_MON_STATUS_REPLINISH;
-@@ -3184,9 +3266,7 @@ static int ath11k_dp_rx_reap_mon_status_
+@@ -3178,9 +3260,7 @@ static int ath11k_dp_rx_reap_mon_status_
  					pmon->buf_state = DP_MON_STATUS_MATCH;
  			}
  
@@ -268,7 +268,7 @@ Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
  
  			__skb_queue_tail(skb_list, skb);
  		} else {
-@@ -3473,11 +3553,20 @@ static int ath11k_dp_rx_h_defrag_reo_rei
+@@ -3467,11 +3547,20 @@ static int ath11k_dp_rx_h_defrag_reo_rei
  	/* change msdu len in hal rx desc */
  	ath11k_dp_rxdesc_set_msdu_len(ab, rx_desc, defrag_skb->len - hal_rx_desc_sz);
  
@@ -294,7 +294,7 @@ Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
  
  	spin_lock_bh(&rx_refill_ring->idr_lock);
  	buf_id = idr_alloc(&rx_refill_ring->bufs_idr, defrag_skb, 0,
-@@ -3540,8 +3629,10 @@ err_free_idr:
+@@ -3534,8 +3623,10 @@ err_free_idr:
  	idr_remove(&rx_refill_ring->bufs_idr, buf_id);
  	spin_unlock_bh(&rx_refill_ring->idr_lock);
  err_unmap_dma:
@@ -307,7 +307,7 @@ Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
  	return ret;
  }
  
-@@ -3781,9 +3872,7 @@ ath11k_dp_process_rx_err_buf(struct ath1
+@@ -3775,9 +3866,7 @@ ath11k_dp_process_rx_err_buf(struct ath1
  	spin_unlock_bh(&rx_ring->idr_lock);
  
  	rxcb = ATH11K_SKB_RXCB(msdu);
@@ -318,7 +318,7 @@ Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
  
  	if (drop) {
  		dev_kfree_skb_any(msdu);
-@@ -4214,9 +4303,7 @@ int ath11k_dp_rx_process_wbm_err(struct
+@@ -4208,9 +4297,7 @@ int ath11k_dp_rx_process_wbm_err(struct
  		spin_unlock_bh(&rx_ring->idr_lock);
  
  		rxcb = ATH11K_SKB_RXCB(msdu);
@@ -329,7 +329,7 @@ Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
  
  		num_buffs_reaped[mac_id]++;
  		total_num_buffs_reaped++;
-@@ -4340,9 +4427,7 @@ int ath11k_dp_process_rxdma_err(struct a
+@@ -4334,9 +4421,7 @@ int ath11k_dp_process_rxdma_err(struct a
  			spin_unlock_bh(&rx_ring->idr_lock);
  
  			rxcb = ATH11K_SKB_RXCB(skb);
@@ -340,7 +340,7 @@ Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
  			dev_kfree_skb_any(skb);
  
  			num_buf_freed++;
-@@ -4813,10 +4898,7 @@ u32 ath11k_dp_rx_mon_mpdu_pop(struct ath
+@@ -4807,10 +4892,7 @@ u32 ath11k_dp_rx_mon_mpdu_pop(struct ath
  			}
  			rxcb = ATH11K_SKB_RXCB(msdu);
  			if (!rxcb->unmapped) {
@@ -352,7 +352,7 @@ Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
  				rxcb->unmapped = 1;
  			}
  			if (drop_mpdu) {
-@@ -5479,10 +5561,7 @@ ath11k_dp_rx_full_mon_mpdu_pop(struct at
+@@ -5462,10 +5544,7 @@ ath11k_dp_rx_full_mon_mpdu_pop(struct at
  
  			rxcb = ATH11K_SKB_RXCB(msdu);
  			if (!rxcb->unmapped) {

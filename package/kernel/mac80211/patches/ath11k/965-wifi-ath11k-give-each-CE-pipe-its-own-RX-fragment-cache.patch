@@ -62,7 +62,7 @@ Signed-off-by: fanha99 <fanha99@hotmail.com>
  static int ath11k_ce_rx_post_pipe(struct ath11k_ce_pipe *pipe)
  {
  	struct ath11k_base *ab = pipe->ab;
-@@ -330,7 +359,7 @@ static int ath11k_ce_rx_post_pipe(struct ath11k_ce_pipe *pipe)
+@@ -330,7 +359,7 @@ static int ath11k_ce_rx_post_pipe(struct
  
  	spin_lock_bh(&ab->ce.ce_lock);
  	while (pipe->rx_buf_needed) {
@@ -71,7 +71,7 @@ Signed-off-by: fanha99 <fanha99@hotmail.com>
  		if (!skb) {
  			ret = -ENOMEM;
  			goto exit;
-@@ -816,6 +845,9 @@ static void ath11k_ce_rx_pipe_cleanup(struct ath11k_ce_pipe *pipe)
+@@ -816,6 +845,9 @@ static void ath11k_ce_rx_pipe_cleanup(st
  				 skb->len + skb_tailroom(skb), DMA_FROM_DEVICE);
  		dev_kfree_skb_any(skb);
  	}

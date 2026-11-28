@@ -30,7 +30,7 @@ Signed-off-by: Stanislaw Pal <kuncy7@gmail.com>
 
 --- a/net/wireless/reg.c
 +++ b/net/wireless/reg.c
-@@ -3147,11 +3147,102 @@
+@@ -3147,11 +3147,102 @@ static void reg_process_pending_beacon_h
  	spin_unlock_bh(&reg_pending_beacons_lock);
  }
  
@@ -133,7 +133,7 @@ Signed-off-by: Stanislaw Pal <kuncy7@gmail.com>
  	enum nl80211_band band;
  	struct regulatory_request request = {};
  
-@@ -3167,12 +3258,19 @@
+@@ -3167,12 +3258,19 @@ static void reg_process_self_managed_hin
  		return;
  
  	tmp = get_wiphy_regdom(wiphy);
